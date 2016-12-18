@@ -1,9 +1,10 @@
 
-package com.roix.vklikes.pojo;
+package com.roix.vklikes.pojo.vk;
 
 import java.util.List;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import com.roix.vklikes.pojo.vk.User;
 
 public class UserInfoResponse {
 

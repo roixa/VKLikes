@@ -1,25 +1,20 @@
 package com.roix.vklikes;
 
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.roix.vklikes.pojo.FirebaseProfile;
-import com.roix.vklikes.pojo.User;
-import com.roix.vklikes.pojo.UserInfoResponse;
+import com.roix.vklikes.pojo.firebase.FirebaseProfile;
+import com.roix.vklikes.pojo.vk.User;
+import com.roix.vklikes.pojo.vk.UserInfoResponse;
 
 import retrofit2.Call;
 import retrofit2.Callback;

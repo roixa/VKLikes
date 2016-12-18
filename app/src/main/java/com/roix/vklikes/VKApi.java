@@ -1,11 +1,10 @@
 package com.roix.vklikes;
 
-import com.roix.vklikes.pojo.UserInfoResponse;
+import com.roix.vklikes.pojo.vk.UserInfoResponse;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.GET;
-import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 /**

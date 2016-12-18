@@ -9,8 +9,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.roix.vklikes.pojo.User;
-import com.roix.vklikes.pojo.UserInfoResponse;
+import com.roix.vklikes.pojo.vk.User;
+import com.roix.vklikes.pojo.vk.UserInfoResponse;
 
 import retrofit2.Call;
 import retrofit2.Callback;

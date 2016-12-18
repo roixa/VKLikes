@@ -11,7 +11,7 @@ import android.view.Window;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.roix.vklikes.pojo.User;
+import com.roix.vklikes.pojo.vk.User;
 import com.squareup.picasso.Picasso;
 
 public class ProfileFragment extends Fragment implements MVP.ContentView {

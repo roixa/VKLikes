@@ -1,4 +1,4 @@
-package com.roix.vklikes.pojo;
+package com.roix.vklikes.pojo.firebase;
 
 import java.util.List;
 

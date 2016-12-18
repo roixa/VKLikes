@@ -1,5 +1,5 @@
 
-package com.roix.vklikes.pojo;
+package com.roix.vklikes.pojo.vk;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
