@@ -10,6 +10,7 @@ import com.roix.vklikes.pojo.vk.User;
 public class MVP {
 
     public interface RootView{
+        void prepareDrawer(User user);
         void prepareProfile();
     }
     public interface ContentView{
@@ -23,6 +24,7 @@ public class MVP {
         void init();
         void finish();
 
+        void updateContent(ContentView view);
 
         void onLoadVkUser(User user);
         void onFirebaseAuth();

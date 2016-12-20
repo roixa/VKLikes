@@ -1,11 +1,17 @@
 package com.roix.vklikes.pojo.firebase;
 
+import com.google.firebase.database.Exclude;
+import com.google.firebase.database.IgnoreExtraProperties;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * Created by roix on 17.12.2016.
  */
-
+@IgnoreExtraProperties
 public class FirebaseProfile {
     private String email;
     private String userId;
@@ -20,10 +26,26 @@ public class FirebaseProfile {
         this.likeCountOut = likeCountOut;
         this.likePhotoUrls = likePhotoUrls;
     }
+    public FirebaseProfile(){
+
+    }
+
 
     public List<String> getLikePhotoUrls() {
         return likePhotoUrls;
     }
+
+    @Exclude
+    public Map<String,Object> toMap(){
+        HashMap<String, Object> result = new HashMap<>();
+        result.put("email", email);
+        result.put("userId", userId);
+        result.put("likeCountIn", likeCountIn);
+        result.put("likeCountOut", likeCountOut);
+        result.put("likePhotoUrls", likePhotoUrls);
+        return result;
+    }
+
 
     public void setLikePhotoUrls(List<String> likePhotoUrls) {
         this.likePhotoUrls = likePhotoUrls;

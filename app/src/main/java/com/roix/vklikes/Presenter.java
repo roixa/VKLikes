@@ -26,104 +26,68 @@ import retrofit2.converter.gson.GsonConverterFactory;
  * Created by roix on 10.12.16.
  */
 
-public class Presenter {
+public class Presenter implements MVP.RootPresenter {
     private MVP.RootView rootView;
     private MVP.ContentView contentView;
-    private enum  State {PROFILE,TASKS,TOP,LIKES};
-    private State state;
-    private VKApi vkApi;
+    private MVP.State state;
+    private VKClient vkClient;
+    private FirebaseClient firebaseClient;
     private String TAG="Presenter";
     private String accessToken,userId,email;
-    private FirebaseAuth mFirebaseAuth;
-    private FirebaseAuth.AuthStateListener mAuthListener;
-    DatabaseReference myRef;
+
+
     public Presenter(MVP.RootView rootView,String accessToken,String userId,String email){
+        Log.d(TAG,"Presenter()");
         this.rootView=rootView;
         this.accessToken=accessToken;
         this.userId=userId;
         this.email=email;
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(Constants.VK_API_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-        vkApi=retrofit.create(VKApi.class);
+        vkClient=new VKClient(this,accessToken);
+        firebaseClient=new FirebaseClient(this);
 
     }
+
+    @Override
     public void init(){
-        state=State.PROFILE;
+        Log.d(TAG,"init()");
+
+        state= MVP.State.PROFILE;
         rootView.prepareProfile();
-        singInFirebase();
-        final FirebaseDatabase database = FirebaseDatabase.getInstance();
-        myRef = database.getReference("users");
-
-        vkApi.geUserInfo(accessToken,userId,Constants.USER_INFO_FIELDS,"5.8").enqueue(new Callback<UserInfoResponse>() {
-            @Override
-            public void onResponse(Call<UserInfoResponse> call, Response<UserInfoResponse> response) {
-                final User user=response.body().getUser().get(0);
-                if(contentView!=null)
-                    contentView.loadContent(user);
-                Log.d(TAG,"onResponse "+user.getFirstName()+" "+user.getId()+" common "+user.getCommon()+" url "+user.getProtoUrl());
-                user.setEmail(email);
-                database.getReference().child("users").addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if(!dataSnapshot.hasChild(""+email.hashCode())){
-                            database.getReference().child("users").child(""+email.hashCode()).setValue(new FirebaseProfile(email,user.getId(),0,0,null)).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    //contentView.loadContent();
-                                }
-                            });
-                        }
-                        else ;
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
-
-                //database.getReference().child("users").child(""+email.hashCode()).child("vk").setValue(user);
-            }
-
-            @Override
-            public void onFailure(Call<UserInfoResponse> call, Throwable t) {
-
-            }
-        });
-
-
+        firebaseClient.singIn();
 
     }
 
+    @Override
+    public void finish() {
+        Log.d(TAG,"finish()");
+    }
 
+    @Override
     public void updateContent(MVP.ContentView contentView){
+        Log.d(TAG,"updateContent()");
         this.contentView=contentView;
     }
 
-    private void singInFirebase(){
-        mFirebaseAuth = FirebaseAuth.getInstance();
+    @Override
+    public void onLoadVkUser(User user) {
+        Log.d(TAG,"onLoadVkUser(User user)");
+        user.setEmail(email);
+        contentView.loadContent(user);
+        rootView.prepareDrawer(user);
+        firebaseClient.listenUser(user);
+    }
 
-        mFirebaseAuth.addAuthStateListener(new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                Log.d(TAG,"onAuthStateChanged   onComplete " +firebaseAuth.toString());
+    @Override
+    public void onFirebaseAuth() {
+        Log.d(TAG,"onFirebaseAuth()");
+        vkClient.loadUserById(userId);
+    }
 
-            }
-        });
-
-        mFirebaseAuth.signInAnonymously()
-                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        Log.d(TAG, "signInAnonymously:onComplete:" + task.isSuccessful()+mFirebaseAuth.getCurrentUser().getDisplayName());
-                        if (!task.isSuccessful()) {
-                            Log.w(TAG, "signInAnonymously:failed", task.getException());
-                        }
-                    }
-                });
+    @Override
+    public void onUpgradeFirebaseProfile(FirebaseProfile profile) {
+        Log.d(TAG,"onUpgradeFirebaseProfile(profile)"+profile.getEmail());
 
     }
+
 
 }

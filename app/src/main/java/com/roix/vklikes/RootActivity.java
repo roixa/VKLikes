@@ -14,6 +14,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.roix.vklikes.pojo.vk.User;
+import com.squareup.picasso.Picasso;
 
 public class RootActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,MVP.RootView {
@@ -31,7 +36,6 @@ public class RootActivity extends AppCompatActivity
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
-
             }
         });
 
@@ -93,23 +97,29 @@ public class RootActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
+        if (id == R.id.nav_profile) {
 
-        } else if (id == R.id.nav_slideshow) {
+        } else if (id == R.id.nav_like) {
 
-        } else if (id == R.id.nav_manage) {
+        } else if (id == R.id.nav_photos) {
 
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
+        } else if (id == R.id.nav_shop) {
 
         }
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    @Override
+    public void prepareDrawer(User user) {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        TextView name=(TextView)drawer.findViewById(R.id.name);
+        TextView email=(TextView)drawer.findViewById(R.id.email);
+        ImageView imageView=(ImageView)drawer.findViewById(R.id.imageView);
+        name.setText(user.getFirstName()+" "+user.getLastName());
+        email.setText(user.getEmail());
+        Picasso.with(this).load(user.getProtoUrl()).into(imageView);
     }
 
     @Override
