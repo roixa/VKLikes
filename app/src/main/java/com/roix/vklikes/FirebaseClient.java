@@ -60,11 +60,11 @@ public class FirebaseClient implements MVP.FirebaseClientModel {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
-                if(!dataSnapshot.hasChild(""+user.getEmail().hashCode())){
-                    database.getReference().child("users").child(""+user.getEmail().hashCode()).updateChildren(new FirebaseProfile(user.getEmail(),user.getId(),0,0,null).toMap());
+                if(!dataSnapshot.hasChild(user.getId())){
+                    database.getReference().child("users").child(user.getId()).updateChildren(new FirebaseProfile(user.getEmail(),user.getId(),0,0,null).toMap());
                 }
                 else {
-                    FirebaseProfile profile=  dataSnapshot.child(""+user.getEmail().hashCode()).getValue(FirebaseProfile.class);
+                    FirebaseProfile profile=  dataSnapshot.child(user.getId()).getValue(FirebaseProfile.class);
                     presenter.onUpgradeFirebaseProfile(profile);
                 }
             }

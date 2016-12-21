@@ -17,7 +17,12 @@ public interface VKApi {
                                       @Query("user_ids") String userID, @Query("fields") String fields, @Query("v") String version);
     @GET("/method/photos.getAll")
     Call<ResponseBody> getAllPhotos(@Query("access_token") String accessToken,
-                                  @Query("user_id") String userID, @Query("v") String version);
+                                  @Query("owner_id") String ownerID, @Query("v") String version,@Query("extended") boolean extended,@Query("photo_sizes") boolean photoSizes);//extended=true photo_sizes=true
+
+    @GET("/method/photos.getAlbums")
+    Call<ResponseBody> getAllAlbums(@Query("access_token") String accessToken,
+                                    @Query("owner_id") String ownerID, @Query("v") String version, @Query("need_system") boolean needSystem, @Query("need_covers") boolean needCovers);//need_system=true need_covers=true
+
 
 
 }
