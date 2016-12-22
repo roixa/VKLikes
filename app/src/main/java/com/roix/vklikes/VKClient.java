@@ -40,7 +40,6 @@ public class VKClient implements MVP.VKClientModel {
                 final User user=response.body().getUser().get(0);
                 presenter.onLoadVkUser(user);
             }
-
             @Override
             public void onFailure(Call<UserInfoResponse> call, Throwable t) {
 

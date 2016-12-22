@@ -54,12 +54,41 @@ public class Presenter implements MVP.RootPresenter {
         state= MVP.State.PROFILE;
         rootView.prepareProfile();
         firebaseClient.singIn();
-
     }
 
     @Override
     public void finish() {
         Log.d(TAG,"finish()");
+    }
+
+    @Override
+    public void navTabProfilePushed() {
+        state= MVP.State.PROFILE;
+        rootView.prepareProfile();
+    }
+
+    @Override
+    public void navTabLikesPushed() {
+        state= MVP.State.LIKES;
+        rootView.prepareLikes();
+    }
+
+    @Override
+    public void navTabAlbumsPushed() {
+        state= MVP.State.TASKS;
+        rootView.prepareAlbums();
+    }
+
+    @Override
+    public void navTabTopPushed() {
+        state= MVP.State.TOP;
+        rootView.prepareTop();
+    }
+
+    @Override
+    public void navTabShopPushed() {
+        state= MVP.State.SHOP;
+        rootView.prepareShop();
     }
 
     @Override

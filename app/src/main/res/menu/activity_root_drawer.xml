@@ -15,6 +15,10 @@
             android:icon="@drawable/ic_menu_slideshow"
             android:title="My albums" />
         <item
+            android:id="@+id/nav_top"
+            android:icon="@drawable/ic_menu_slideshow"
+            android:title="Top" />
+        <item
             android:id="@+id/nav_shop"
             android:icon="@drawable/ic_menu_manage"
             android:title="Shop" />

@@ -12,17 +12,28 @@ public class MVP {
     public interface RootView{
         void prepareDrawer(User user);
         void prepareProfile();
+        void prepareLikes();
+        void prepareAlbums();
+        void prepareTop();
+        void prepareShop();
+
     }
     public interface ContentView{
         void loadContent(Object o);
     }
 
 
-    public enum  State {PROFILE,TASKS,TOP,LIKES};
-    //@TODO impliment and split presenter vk and file models
+    public enum  State {PROFILE,TASKS,TOP,LIKES,SHOP};
+
     public interface RootPresenter{
         void init();
         void finish();
+
+        void navTabProfilePushed();
+        void navTabLikesPushed();
+        void navTabAlbumsPushed();
+        void navTabTopPushed();
+        void navTabShopPushed();
 
         void updateContent(ContentView view);
 
