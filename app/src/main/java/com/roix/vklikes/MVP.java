@@ -3,6 +3,7 @@ package com.roix.vklikes;
 import com.roix.vklikes.pojo.firebase.FirebaseProfile;
 import com.roix.vklikes.pojo.vk.Album;
 import com.roix.vklikes.pojo.vk.AllAlbumsResponse;
+import com.roix.vklikes.pojo.vk.GetPhotosByAlbumResponse;
 import com.roix.vklikes.pojo.vk.User;
 
 import java.util.List;
@@ -40,9 +41,12 @@ public class MVP {
         void navTabShopPushed();
 
         void updateContent(ContentView view);
+        void choosedAlbum(Album album);
 
+        void onError(int code,String err);
         void onLoadVkUser(User user);
         void onLoadAlbums(AllAlbumsResponse response);
+        void onLoadPhotosByAlbum(GetPhotosByAlbumResponse response);
         void onFirebaseAuth();
         void onUpgradeFirebaseProfile(FirebaseProfile profile);
     }
@@ -50,6 +54,7 @@ public class MVP {
     public interface VKClientModel{
         void loadOwnerById(String vkId);
         void loadOwnerAlbums(String vkId);
+        void loadPhotosByAlbum(Album album);
     }
 
     public interface FirebaseClientModel{

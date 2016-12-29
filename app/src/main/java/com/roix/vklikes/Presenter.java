@@ -15,6 +15,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.roix.vklikes.pojo.firebase.FirebaseProfile;
 import com.roix.vklikes.pojo.vk.Album;
 import com.roix.vklikes.pojo.vk.AllAlbumsResponse;
+import com.roix.vklikes.pojo.vk.GetPhotosByAlbumResponse;
 import com.roix.vklikes.pojo.vk.User;
 import com.roix.vklikes.pojo.vk.UserInfoResponse;
 
@@ -104,6 +105,17 @@ public class Presenter implements MVP.RootPresenter {
     }
 
     @Override
+    public void choosedAlbum(Album album) {
+        Log.d(TAG,"album() "+album.getTitle()+" "+album.getOwnerId()+" " +album.getId());
+        vkClient.loadPhotosByAlbum(album);
+    }
+
+    @Override
+    public void onError(int code, String err) {
+
+    }
+
+    @Override
     public void onLoadVkUser(User user) {
         Log.d(TAG,"onLoadVkUser(User user)");
         user.setEmail(email);
@@ -116,6 +128,12 @@ public class Presenter implements MVP.RootPresenter {
     public void onLoadAlbums(AllAlbumsResponse response) {
         Log.d(TAG,"onLoadAlbums() "+response.getAllAlbumsInnerResponse().getAlba().size());
         contentView.loadContent(this,response);
+
+    }
+
+    @Override
+    public void onLoadPhotosByAlbum(GetPhotosByAlbumResponse response) {
+        Log.d(TAG,"onLoadPhotosByAlbum() " +response.getResponse().getCount()+" "+response.getResponse().getItems().size());
 
     }
 
