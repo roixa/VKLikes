@@ -47,7 +47,7 @@ public class ProfileFragment extends Fragment implements MVP.ContentView {
     }
 
     @Override
-    public void loadContent(Object o) {
+    public void loadContent(MVP.RootPresenter presenter,Object o) {
         //spinner.dismiss();
         if (o instanceof User) {
             User u=((User) o);

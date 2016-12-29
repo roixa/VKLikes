@@ -1,7 +1,11 @@
 package com.roix.vklikes;
 
 import com.roix.vklikes.pojo.firebase.FirebaseProfile;
+import com.roix.vklikes.pojo.vk.Album;
+import com.roix.vklikes.pojo.vk.AllAlbumsResponse;
 import com.roix.vklikes.pojo.vk.User;
+
+import java.util.List;
 
 /**
  * Created by roix on 17.12.2016.
@@ -19,7 +23,7 @@ public class MVP {
 
     }
     public interface ContentView{
-        void loadContent(Object o);
+        void loadContent(RootPresenter presenter,Object o);
     }
 
 
@@ -38,12 +42,14 @@ public class MVP {
         void updateContent(ContentView view);
 
         void onLoadVkUser(User user);
+        void onLoadAlbums(AllAlbumsResponse response);
         void onFirebaseAuth();
         void onUpgradeFirebaseProfile(FirebaseProfile profile);
     }
 
     public interface VKClientModel{
-        void loadUserById(String vkId);
+        void loadOwnerById(String vkId);
+        void loadOwnerAlbums(String vkId);
     }
 
     public interface FirebaseClientModel{

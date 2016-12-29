@@ -139,7 +139,9 @@ public class RootActivity extends AppCompatActivity
 
     @Override
     public void prepareAlbums() {
-
+        Fragment fragment=new AlbumsFragment();
+        getFragmentManager().beginTransaction().replace(R.id.fragmentContainer,fragment).commit();
+        presenter.updateContent((MVP.ContentView)fragment);
     }
 
     @Override

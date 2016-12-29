@@ -1,5 +1,6 @@
 package com.roix.vklikes;
 
+import com.roix.vklikes.pojo.vk.AllAlbumsResponse;
 import com.roix.vklikes.pojo.vk.UserInfoResponse;
 
 import okhttp3.ResponseBody;
@@ -20,8 +21,8 @@ public interface VKApi {
                                   @Query("owner_id") String ownerID, @Query("v") String version,@Query("extended") boolean extended,@Query("photo_sizes") boolean photoSizes);//extended=true photo_sizes=true
 
     @GET("/method/photos.getAlbums")
-    Call<ResponseBody> getAllAlbums(@Query("access_token") String accessToken,
-                                    @Query("owner_id") String ownerID, @Query("v") String version, @Query("need_system") boolean needSystem, @Query("need_covers") boolean needCovers);//need_system=true need_covers=true
+    Call<AllAlbumsResponse> getAllAlbums(@Query("access_token") String accessToken,
+                                         @Query("owner_id") String ownerID, @Query("v") String version, @Query("need_system") boolean needSystem, @Query("need_covers") boolean needCovers);//need_system=true need_covers=true
 
 
 

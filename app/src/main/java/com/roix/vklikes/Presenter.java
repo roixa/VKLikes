@@ -13,8 +13,12 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.roix.vklikes.pojo.firebase.FirebaseProfile;
+import com.roix.vklikes.pojo.vk.Album;
+import com.roix.vklikes.pojo.vk.AllAlbumsResponse;
 import com.roix.vklikes.pojo.vk.User;
 import com.roix.vklikes.pojo.vk.UserInfoResponse;
+
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -65,6 +69,7 @@ public class Presenter implements MVP.RootPresenter {
     public void navTabProfilePushed() {
         state= MVP.State.PROFILE;
         rootView.prepareProfile();
+        vkClient.loadOwnerById(userId);
     }
 
     @Override
@@ -77,6 +82,7 @@ public class Presenter implements MVP.RootPresenter {
     public void navTabAlbumsPushed() {
         state= MVP.State.TASKS;
         rootView.prepareAlbums();
+        vkClient.loadOwnerAlbums(vkClient.getOwner().getId());
     }
 
     @Override
@@ -101,15 +107,22 @@ public class Presenter implements MVP.RootPresenter {
     public void onLoadVkUser(User user) {
         Log.d(TAG,"onLoadVkUser(User user)");
         user.setEmail(email);
-        contentView.loadContent(user);
+        contentView.loadContent(this,user);
         rootView.prepareDrawer(user);
         firebaseClient.listenUser(user);
     }
 
     @Override
+    public void onLoadAlbums(AllAlbumsResponse response) {
+        Log.d(TAG,"onLoadAlbums() "+response.getAllAlbumsInnerResponse().getAlba().size());
+        contentView.loadContent(this,response);
+
+    }
+
+    @Override
     public void onFirebaseAuth() {
         Log.d(TAG,"onFirebaseAuth()");
-        vkClient.loadUserById(userId);
+        vkClient.loadOwnerById(userId);
     }
 
     @Override
