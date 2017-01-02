@@ -28,6 +28,7 @@ public class VKClient implements MVP.VKClientModel {
 
     private User owner=null;
     private AllAlbumsResponse ownerAlbums=null;
+    private GetPhotosByAlbumResponse choosedPhotos=null;
 
 
     public VKClient(MVP.RootPresenter presenter,String accessToken) {
@@ -91,8 +92,11 @@ public class VKClient implements MVP.VKClientModel {
         api.getPhotosByAlbum(accessToken,album.getOwnerId()+"","5.60",album.getId()+"",true,true,true,"0","50").enqueue(new Callback<GetPhotosByAlbumResponse>() {
             @Override
             public void onResponse(Call<GetPhotosByAlbumResponse> call, Response<GetPhotosByAlbumResponse> response) {
-                if(response.isSuccessful())
-                    presenter.onLoadPhotosByAlbum(response.body());
+                if(response.isSuccessful()){
+                    choosedPhotos=response.body();
+                    presenter.onLoadPhotosByAlbum(choosedPhotos);
+
+                }
                 else presenter.onError(0,"loadPhotosByAlbum !isSuccessful");
             }
 
@@ -112,6 +116,11 @@ public class VKClient implements MVP.VKClientModel {
     }
 
 
+    public AllAlbumsResponse getOwnerAlbums() {
+        return ownerAlbums;
+    }
 
-
+    public GetPhotosByAlbumResponse getChoosedPhotos() {
+        return choosedPhotos;
+    }
 }

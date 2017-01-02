@@ -12,14 +12,18 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.roix.vklikes.pojo.firebase.FirebasePhotoLikeTask;
 import com.roix.vklikes.pojo.firebase.FirebaseProfile;
 import com.roix.vklikes.pojo.vk.Album;
 import com.roix.vklikes.pojo.vk.AllAlbumsResponse;
 import com.roix.vklikes.pojo.vk.GetPhotosByAlbumResponse;
+import com.roix.vklikes.pojo.vk.Photo;
 import com.roix.vklikes.pojo.vk.User;
 import com.roix.vklikes.pojo.vk.UserInfoResponse;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -64,6 +68,7 @@ public class Presenter implements MVP.RootPresenter {
     @Override
     public void finish() {
         Log.d(TAG,"finish()");
+        firebaseClient.finish();
     }
 
     @Override
@@ -77,6 +82,7 @@ public class Presenter implements MVP.RootPresenter {
     public void navTabLikesPushed() {
         state= MVP.State.LIKES;
         rootView.prepareLikes();
+        firebaseClient.getAndUsePhotoLikeTasks();
     }
 
     @Override
@@ -108,6 +114,16 @@ public class Presenter implements MVP.RootPresenter {
     public void choosedAlbum(Album album) {
         Log.d(TAG,"album() "+album.getTitle()+" "+album.getOwnerId()+" " +album.getId());
         vkClient.loadPhotosByAlbum(album);
+
+        FirebasePhotoLikeTask task=generateNewTask();
+        firebaseClient.addPhotoLikeTask(task);
+        //firebaseClient.getAndUsePhotoLikeTasks();
+    }
+
+    @Override
+    public void imageLikeClicked(Map<String, FirebasePhotoLikeTask> likeTaskMap, int pos) {
+        firebaseClient.lockOrRemoveLikeTasks(false,likeTaskMap,pos);
+        firebaseClient.getAndUsePhotoLikeTasks();
     }
 
     @Override
@@ -133,7 +149,7 @@ public class Presenter implements MVP.RootPresenter {
 
     @Override
     public void onLoadPhotosByAlbum(GetPhotosByAlbumResponse response) {
-        Log.d(TAG,"onLoadPhotosByAlbum() " +response.getResponse().getCount()+" "+response.getResponse().getItems().size());
+        Log.d(TAG,"onLoadPhotosByAlbum() " +response.getResponse().getCount()+" "+response.getResponse().getItems().size()+" "+vkClient.getChoosedPhotos().getResponse().getItems().size());
 
     }
 
@@ -149,5 +165,22 @@ public class Presenter implements MVP.RootPresenter {
 
     }
 
+    @Override
+    public void onLoadLikeTasks(Map<String,FirebasePhotoLikeTask> tasks) {
+        Log.d(TAG,"onLoadLikeTasks() "+tasks.size());
+        contentView.loadContent(this,tasks);
+
+    }
+
+    private FirebasePhotoLikeTask generateNewTask(){
+        if(vkClient.getChoosedPhotos()==null) return null;
+        List<Photo> photos=vkClient.getChoosedPhotos().getResponse().getItems();
+        Random random=new Random(System.currentTimeMillis());
+        int pos=random.nextInt(photos.size());
+        Photo  choosed= photos.get(pos);
+
+        FirebasePhotoLikeTask task=new FirebasePhotoLikeTask(true,choosed.getId()+"",choosed.getOwnerId()+"",choosed.getSizes().get(choosed.getSizes().size()-1).getSrc());
+        return task;
+    }
 
 }

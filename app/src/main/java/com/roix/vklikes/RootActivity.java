@@ -53,7 +53,19 @@ public class RootActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
         navigationView.getMenu().getItem(0).setChecked(true);
 
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         initPresenter();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        presenter.finish();
     }
 
     private void initPresenter(){
@@ -134,6 +146,9 @@ public class RootActivity extends AppCompatActivity
 
     @Override
     public void prepareLikes() {
+        Fragment fragment=new LikesFragment();
+        getFragmentManager().beginTransaction().replace(R.id.fragmentContainer,fragment).commit();
+        presenter.updateContent((MVP.ContentView)fragment);
 
     }
 
