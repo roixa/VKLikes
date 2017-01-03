@@ -17,23 +17,22 @@ public class FirebaseProfile {
     private String userId;
     private Integer likeCountIn;
     private Integer likeCountOut;
-    private List<String> likePhotoUrls;
+    private Integer likeCountBuy;
+    private Double rating;
 
-    public FirebaseProfile(String email, String userId, Integer likeCountIn, Integer likeCountOut, List<String> likePhotoUrls) {
+    public FirebaseProfile(String email, String userId, Integer likeCountIn, Integer likeCountOut,Integer likeCountBuy,Double rating) {
         this.email = email;
         this.userId = userId;
         this.likeCountIn = likeCountIn;
         this.likeCountOut = likeCountOut;
-        this.likePhotoUrls = likePhotoUrls;
+        this.likeCountBuy = likeCountBuy;
+        this.rating = rating;
+
     }
     public FirebaseProfile(){
 
     }
 
-
-    public List<String> getLikePhotoUrls() {
-        return likePhotoUrls;
-    }
 
     @Exclude
     public Map<String,Object> toMap(){
@@ -42,13 +41,25 @@ public class FirebaseProfile {
         result.put("userId", userId);
         result.put("likeCountIn", likeCountIn);
         result.put("likeCountOut", likeCountOut);
-        result.put("likePhotoUrls", likePhotoUrls);
+        result.put("likeCountBuy", likeCountBuy);
+        result.put("rating", rating);
         return result;
     }
 
+    public Integer getLikeCountBuy() {
+        return likeCountBuy;
+    }
 
-    public void setLikePhotoUrls(List<String> likePhotoUrls) {
-        this.likePhotoUrls = likePhotoUrls;
+    public void setLikeCountBuy(Integer likeCountBuy) {
+        this.likeCountBuy = likeCountBuy;
+    }
+
+    public Double getRating() {
+        return rating;
+    }
+
+    public void setRating(Double rating) {
+        this.rating = rating;
     }
 
     public Integer getLikeCountOut() {

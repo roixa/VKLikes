@@ -1,13 +1,46 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context="com.roix.vklikes.AlbumsFragment">
+    <android.support.v7.widget.CardView
+        android:id="@+id/all_photos_cv"
+        app:cardElevation="@dimen/base_padding"
+        android:layout_margin="@dimen/base_padding"
+        app:cardCornerRadius="@dimen/base_padding"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <CheckBox
+                android:id="@+id/allCheckBox"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/name"
+                android:layout_toLeftOf="@id/useCheckBox"
+                android:padding="@dimen/base_padding"
+                android:layout_alignParentLeft="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/all_photos_title"
+                android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium" />
+
+
+        </RelativeLayout>
+    </android.support.v7.widget.CardView>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recyclerView"
+        android:layout_below="@id/all_photos_cv"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
     </android.support.v7.widget.RecyclerView>
-</FrameLayout>
+</RelativeLayout>

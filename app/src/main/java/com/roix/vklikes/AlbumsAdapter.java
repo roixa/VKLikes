@@ -1,7 +1,10 @@
 package com.roix.vklikes;
 
 import android.content.Context;
+import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +16,7 @@ import android.widget.TextView;
 import com.roix.vklikes.pojo.vk.Album;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -22,12 +26,10 @@ import de.hdodenhof.circleimageview.CircleImageView;
  */
 
 public class AlbumsAdapter extends RecyclerView.Adapter<AlbumsAdapter.AlbumsViewHolder>{
-
+    private String TAG="AlbumsAdapter";
     private List<Album> alba;
     private Context context;
     private MVP.RootPresenter presenter;
-    private Album choosed=null;
-
     public AlbumsAdapter(List<Album> alba, Context context,MVP.RootPresenter presenter) {
         this.alba = alba;
         this.context=context;
@@ -48,8 +50,20 @@ public class AlbumsAdapter extends RecyclerView.Adapter<AlbumsAdapter.AlbumsView
         holder.name.setText(album.getTitle());
         holder.info.setText(album.getSize()+"");
         Picasso.with(context).load(album.getThumbSrc()).into(holder.imageView);
-        if(choosed!=null&&album!=null)
-            holder.checkBox.setChecked(album.getId().intValue()==choosed.getId().intValue());
+
+        int choosedAlbumPos= PreferenceManager.getDefaultSharedPreferences(context).getInt(Constants.PREF_CHOOSED_ALBUM_ID,-1);
+        Log.d(TAG,"onBindViewHolder choosedAlbumPos="+choosedAlbumPos);
+        onBind = true;
+
+
+        if(choosedAlbumPos==-1){
+            holder.checkBox.setChecked(true);
+        }
+        else {
+            holder.checkBox.setChecked(pos==choosedAlbumPos);
+        }
+        onBind = false;
+
     }
 
     @Override
@@ -58,14 +72,30 @@ public class AlbumsAdapter extends RecyclerView.Adapter<AlbumsAdapter.AlbumsView
         return 0;
     }
 
+    boolean onBind=false;
     public void onCheckBoxClicked(int pos,boolean isChecked){
-
-        if(isChecked) {
-            choosed=alba.get(pos);
-            presenter.choosedAlbum(alba.get(pos));
-            notifyDataSetChanged();
+        Log.d(TAG,"onCheckBoxClicked pos="+pos);
+        if(onBind) return;
+        if(isChecked&&pos==-1) {
+            PreferenceManager.getDefaultSharedPreferences(context).edit().putInt(Constants.PREF_CHOOSED_ALBUM_ID,-1).commit();
+            presenter.choosedAlbum(null);
         }
+        else if(!isChecked&&pos==-1){
+            PreferenceManager.getDefaultSharedPreferences(context).edit().putInt(Constants.PREF_CHOOSED_ALBUM_ID,0).commit();
+            presenter.choosedAlbum(alba.get(0));
+        }
+        else{
+            PreferenceManager.getDefaultSharedPreferences(context).edit().putInt(Constants.PREF_CHOOSED_ALBUM_ID,pos).commit();
+            presenter.choosedAlbum(alba.get(pos));
+        }
+        notifyDataSetChanged();
     }
+
+
+
+
+
+
 
     public class AlbumsViewHolder extends RecyclerView.ViewHolder implements CompoundButton.OnCheckedChangeListener{
         public CircleImageView imageView;

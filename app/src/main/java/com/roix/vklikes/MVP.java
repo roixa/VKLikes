@@ -50,7 +50,7 @@ public class MVP {
 
         //content
         void updateContent(ContentView view);
-        void choosedAlbum(Album album);
+        void choosedAlbum(Album album);//null == all photos
         void imageLikeClicked(Map<String,FirebasePhotoLikeTask> likeTaskMap,int pos);
 
         void onError(int code,String err);

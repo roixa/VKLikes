@@ -1,5 +1,7 @@
 package com.roix.vklikes;
 
+import android.util.Log;
+
 import com.roix.vklikes.pojo.vk.Album;
 import com.roix.vklikes.pojo.vk.AllAlbumsResponse;
 import com.roix.vklikes.pojo.vk.AllPhotosResponse;
@@ -114,12 +116,16 @@ public class VKClient implements MVP.VKClientModel {
         api.getAllPhotos(accessToken,vkId,"5.6",true,true,0+"",50+"").enqueue(new Callback<AllPhotosResponse>() {
             @Override
             public void onResponse(Call<AllPhotosResponse> call, Response<AllPhotosResponse> response) {
-                choosedPhotos=response.body().getResponse().getItems();
+                if(response.isSuccessful()){
+                    choosedPhotos=response.body().getResponse().getItems();
+                    presenter.onLoadAllPhotos(choosedPhotos);
+                }
+                else Log.d(TAG,"loadAllPhotosById !response.isSuccessful");
             }
 
             @Override
             public void onFailure(Call<AllPhotosResponse> call, Throwable t) {
-
+                Log.d(TAG,"loadAllPhotosById onFailure");
             }
         });
     }

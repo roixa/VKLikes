@@ -11,6 +11,8 @@ public class Constants {
     public static final String PREF_USER_ID="user_id";
     public static final String PREF_USER_EMAIL="email";
 
+    public static final String PREF_CHOOSED_ALBUM_ID="album_id";//
+
     public static final String USER_INFO_FIELDS="photo_max_orig,sex,photo_id,followers_count,common_count";
 
 

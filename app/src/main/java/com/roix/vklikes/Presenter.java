@@ -54,7 +54,6 @@ public class Presenter implements MVP.RootPresenter {
         this.email=email;
         vkClient=new VKClient(this,accessToken);
         firebaseClient=new FirebaseClient(this);
-        vkClient.loadAllPhotosById(userId);
     }
 
     @Override
@@ -64,6 +63,8 @@ public class Presenter implements MVP.RootPresenter {
         state= MVP.State.PROFILE;
         rootView.prepareProfile();
         firebaseClient.singIn();
+        vkClient.loadAllPhotosById(userId);
+
     }
 
     @Override
@@ -127,25 +128,20 @@ public class Presenter implements MVP.RootPresenter {
 
     @Override
     public void choosedAlbum(Album album) {
-        Log.d(TAG,"album() "+album.getTitle()+" "+album.getOwnerId()+" " +album.getId());
-        vkClient.loadPhotosByAlbum(album);
-
-        FirebasePhotoLikeTask task=generateNewTask();
-        firebaseClient.addPhotoLikeTask(task);
-        //firebaseClient.getAndUsePhotoLikeTasks();
+        if(album!=null){
+            Log.d(TAG,"album() "+album.getTitle()+" "+album.getOwnerId()+" " +album.getId());
+            vkClient.loadPhotosByAlbum(album);
+        }
+        else vkClient.loadAllPhotosById(userId);
         rootView.showIsProgress(true);
     }
 
     @Override
     public void imageLikeClicked(Map<String, FirebasePhotoLikeTask> likeTaskMap, int pos) {
         Log.d(TAG,"imageLikeClicked");
-
         firebaseClient.lockOrRemoveLikeTasks(false,likeTaskMap,pos);
         firebaseClient.getAndUsePhotoLikeTasks();
-        for(int i=0;i<3;i++){
-            FirebasePhotoLikeTask newTask=generateNewTask();
-            firebaseClient.addPhotoLikeTask(newTask);
-        }
+        addLikeTasks(3);
         rootView.showIsProgress(true);
     }
 
@@ -179,21 +175,19 @@ public class Presenter implements MVP.RootPresenter {
 
     @Override
     public void onLoadAllPhotos(List<Photo> response) {
-
+        Log.d(TAG,"onLoadAllPhotos " +response.size());
+        rootView.showIsProgress(false);
     }
 
     @Override
     public void onFirebaseAuth() {
         Log.d(TAG,"onFirebaseAuth()");
         vkClient.loadOwnerById(userId);
-
-
     }
 
     @Override
     public void onUpgradeFirebaseProfile(FirebaseProfile profile) {
         Log.d(TAG,"onUpgradeFirebaseProfile(profile)"+profile.getEmail());
-
     }
 
     @Override
@@ -203,15 +197,17 @@ public class Presenter implements MVP.RootPresenter {
         rootView.showIsProgress(false);
     }
 
-    private FirebasePhotoLikeTask generateNewTask(){
-        if(vkClient.getChoosedPhotos()==null) return null;
+    private void addLikeTasks(int count){
+        if(vkClient.getChoosedPhotos()==null) return;
         List<Photo> photos=vkClient.getChoosedPhotos();
         Random random=new Random(System.currentTimeMillis());
-        int pos=random.nextInt(photos.size());
-        Photo  choosed= photos.get(pos);
-
-        FirebasePhotoLikeTask task=new FirebasePhotoLikeTask(true,choosed.getId()+"",choosed.getOwnerId()+"",choosed.getSizes().get(choosed.getSizes().size()-1).getSrc());
-        return task;
+        for(int i=0;i<count;i++){
+            int pos=random.nextInt(photos.size());
+            Photo  choosed= photos.get(pos);
+            FirebasePhotoLikeTask task=new FirebasePhotoLikeTask(true,choosed.getId()+"",choosed.getOwnerId()+"",choosed.getSizes().get(choosed.getSizes().size()-1).getSrc());
+            firebaseClient.addPhotoLikeTask(task);
+        }
     }
+
 
 }
