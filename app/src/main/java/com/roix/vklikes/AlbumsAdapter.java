@@ -15,6 +15,8 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
 /**
  * Created by roix on 25.12.2016.
  */
@@ -66,13 +68,13 @@ public class AlbumsAdapter extends RecyclerView.Adapter<AlbumsAdapter.AlbumsView
     }
 
     public class AlbumsViewHolder extends RecyclerView.ViewHolder implements CompoundButton.OnCheckedChangeListener{
-        public ImageView imageView;
+        public CircleImageView imageView;
         public TextView name;
         public TextView info;
         public CheckBox checkBox;
         public AlbumsViewHolder(View v) {
             super(v);
-            imageView=(ImageView) v.findViewById(R.id.photo);
+            imageView=(CircleImageView) v.findViewById(R.id.photo);
             name=(TextView) v.findViewById(R.id.name);
             info=(TextView) v.findViewById(R.id.info);
             checkBox=(CheckBox)v.findViewById(R.id.useCheckBox);

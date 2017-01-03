@@ -16,6 +16,7 @@ import com.roix.vklikes.pojo.firebase.FirebasePhotoLikeTask;
 import com.roix.vklikes.pojo.firebase.FirebaseProfile;
 import com.roix.vklikes.pojo.vk.Album;
 import com.roix.vklikes.pojo.vk.AllAlbumsResponse;
+import com.roix.vklikes.pojo.vk.AllPhotosResponse;
 import com.roix.vklikes.pojo.vk.GetPhotosByAlbumResponse;
 import com.roix.vklikes.pojo.vk.Photo;
 import com.roix.vklikes.pojo.vk.User;
@@ -53,7 +54,7 @@ public class Presenter implements MVP.RootPresenter {
         this.email=email;
         vkClient=new VKClient(this,accessToken);
         firebaseClient=new FirebaseClient(this);
-
+        vkClient.loadAllPhotosById(userId);
     }
 
     @Override
@@ -72,10 +73,22 @@ public class Presenter implements MVP.RootPresenter {
     }
 
     @Override
+    public void backButtonPressed() {
+        if(state== MVP.State.PROFILE) rootView.close();
+        else {
+            state=MVP.State.PROFILE;
+            rootView.prepareProfile();
+            vkClient.loadOwnerById(userId);
+
+        }
+    }
+
+    @Override
     public void navTabProfilePushed() {
         state= MVP.State.PROFILE;
         rootView.prepareProfile();
         vkClient.loadOwnerById(userId);
+        rootView.showIsProgress(true);
     }
 
     @Override
@@ -83,6 +96,7 @@ public class Presenter implements MVP.RootPresenter {
         state= MVP.State.LIKES;
         rootView.prepareLikes();
         firebaseClient.getAndUsePhotoLikeTasks();
+        rootView.showIsProgress(true);
     }
 
     @Override
@@ -90,6 +104,7 @@ public class Presenter implements MVP.RootPresenter {
         state= MVP.State.TASKS;
         rootView.prepareAlbums();
         vkClient.loadOwnerAlbums(vkClient.getOwner().getId());
+        rootView.showIsProgress(true);
     }
 
     @Override
@@ -118,12 +133,20 @@ public class Presenter implements MVP.RootPresenter {
         FirebasePhotoLikeTask task=generateNewTask();
         firebaseClient.addPhotoLikeTask(task);
         //firebaseClient.getAndUsePhotoLikeTasks();
+        rootView.showIsProgress(true);
     }
 
     @Override
     public void imageLikeClicked(Map<String, FirebasePhotoLikeTask> likeTaskMap, int pos) {
+        Log.d(TAG,"imageLikeClicked");
+
         firebaseClient.lockOrRemoveLikeTasks(false,likeTaskMap,pos);
         firebaseClient.getAndUsePhotoLikeTasks();
+        for(int i=0;i<3;i++){
+            FirebasePhotoLikeTask newTask=generateNewTask();
+            firebaseClient.addPhotoLikeTask(newTask);
+        }
+        rootView.showIsProgress(true);
     }
 
     @Override
@@ -138,18 +161,24 @@ public class Presenter implements MVP.RootPresenter {
         contentView.loadContent(this,user);
         rootView.prepareDrawer(user);
         firebaseClient.listenUser(user);
+        rootView.showIsProgress(false);
     }
 
     @Override
     public void onLoadAlbums(AllAlbumsResponse response) {
         Log.d(TAG,"onLoadAlbums() "+response.getAllAlbumsInnerResponse().getAlba().size());
         contentView.loadContent(this,response);
-
+        rootView.showIsProgress(false);
     }
 
     @Override
-    public void onLoadPhotosByAlbum(GetPhotosByAlbumResponse response) {
-        Log.d(TAG,"onLoadPhotosByAlbum() " +response.getResponse().getCount()+" "+response.getResponse().getItems().size()+" "+vkClient.getChoosedPhotos().getResponse().getItems().size());
+    public void onLoadPhotosByAlbum(List<Photo> response) {
+        Log.d(TAG,"onLoadPhotosByAlbum() " +response.size()+" "+vkClient.getChoosedPhotos().size());
+        rootView.showIsProgress(false);
+    }
+
+    @Override
+    public void onLoadAllPhotos(List<Photo> response) {
 
     }
 
@@ -157,6 +186,8 @@ public class Presenter implements MVP.RootPresenter {
     public void onFirebaseAuth() {
         Log.d(TAG,"onFirebaseAuth()");
         vkClient.loadOwnerById(userId);
+
+
     }
 
     @Override
@@ -169,12 +200,12 @@ public class Presenter implements MVP.RootPresenter {
     public void onLoadLikeTasks(Map<String,FirebasePhotoLikeTask> tasks) {
         Log.d(TAG,"onLoadLikeTasks() "+tasks.size());
         contentView.loadContent(this,tasks);
-
+        rootView.showIsProgress(false);
     }
 
     private FirebasePhotoLikeTask generateNewTask(){
         if(vkClient.getChoosedPhotos()==null) return null;
-        List<Photo> photos=vkClient.getChoosedPhotos().getResponse().getItems();
+        List<Photo> photos=vkClient.getChoosedPhotos();
         Random random=new Random(System.currentTimeMillis());
         int pos=random.nextInt(photos.size());
         Photo  choosed= photos.get(pos);

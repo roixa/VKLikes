@@ -1,6 +1,7 @@
 package com.roix.vklikes;
 
 import com.roix.vklikes.pojo.vk.AllAlbumsResponse;
+import com.roix.vklikes.pojo.vk.AllPhotosResponse;
 import com.roix.vklikes.pojo.vk.GetPhotosByAlbumResponse;
 import com.roix.vklikes.pojo.vk.UserInfoResponse;
 
@@ -18,8 +19,10 @@ public interface VKApi {
     Call<UserInfoResponse> geUserInfo(@Query("access_token") String accessToken,
                                       @Query("user_ids") String userID, @Query("fields") String fields, @Query("v") String version);//v="5.8"
     @GET("/method/photos.getAll")
-    Call<ResponseBody> getAllPhotos(@Query("access_token") String accessToken,
-                                    @Query("owner_id") String ownerID, @Query("v") String version,@Query("extended") boolean extended,@Query("photo_sizes") boolean photoSizes);//extended=true photo_sizes=true
+    Call<AllPhotosResponse> getAllPhotos(@Query("access_token") String accessToken,
+                                         @Query("owner_id") String ownerID, @Query("v") String version,
+                                         @Query("extended") boolean extended, @Query("photo_sizes") boolean photoSizes,
+                                         @Query("offset") String offset, @Query("count") String count);//extended=true photo_sizes=true
 
     @GET("/method/photos.getAlbums")
     Call<AllAlbumsResponse> getAllAlbums(@Query("access_token") String accessToken,

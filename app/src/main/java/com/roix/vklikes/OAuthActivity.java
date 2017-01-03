@@ -28,7 +28,7 @@ public class OAuthActivity extends AppCompatActivity {
         spinner = new ProgressDialog(this);
         spinner.requestWindowFeature(Window.FEATURE_NO_TITLE);
         spinner.setMessage("Loading...");
-        String url=Constants.VK_OAUTH_URL+"?"+"client_id="+Constants.VK_CLIENT_ID+"&"+"redirect_uri="+Constants.VK_OAUTH_REDIRECT_URL+"&scope=wall,email,offline,photos&response_type=token";
+        String url=Constants.VK_OAUTH_URL+"?"+"client_id="+Keys.VK_CLIENT_ID+"&"+"redirect_uri="+Constants.VK_OAUTH_REDIRECT_URL+"&scope=wall,email,offline,photos&response_type=token";
 
         Log.d(TAG, "m url: " + url);
 
@@ -77,7 +77,7 @@ public class OAuthActivity extends AppCompatActivity {
                 Log.d(TAG, "onPageFinished code: " + code+" user id: "+userid+" email: "+email);
                 Intent intent = new Intent(OAuthActivity.this, RootActivity.class);
                 startActivity(intent);
-
+                finish();
             }
         }
 

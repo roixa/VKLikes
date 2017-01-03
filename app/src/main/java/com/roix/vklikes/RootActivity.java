@@ -1,6 +1,8 @@
 package com.roix.vklikes;
 
 import android.app.Fragment;
+import android.graphics.Point;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
@@ -14,7 +16,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.roix.vklikes.pojo.vk.User;
@@ -25,18 +30,21 @@ public class RootActivity extends AppCompatActivity
     private ActionBarDrawerToggle toggle;
     private MVP.RootPresenter presenter;
     private NavigationView navigationView;
+    private FloatingActionButton fab;
+    private ProgressBar progressBar;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_root);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        progressBar=(ProgressBar)findViewById(R.id.toolbar_progress_bar);
+        fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                //        .setAction("Action", null).show();
                 navigationView.getMenu().getItem(1).setChecked(true);
                 presenter.navTabLikesPushed();
 
@@ -68,11 +76,11 @@ public class RootActivity extends AppCompatActivity
         presenter.finish();
     }
 
-    private void initPresenter(){
-        String accessToken= PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.PREF_ACCESS_TOKEN,"");
-        String userId= PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.PREF_USER_ID,"");
-        String email= PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.PREF_USER_EMAIL,"");
-        presenter=new Presenter(this,accessToken,userId,email);
+    private void initPresenter() {
+        String accessToken = PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.PREF_ACCESS_TOKEN, "");
+        String userId = PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.PREF_USER_ID, "");
+        String email = PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.PREF_USER_EMAIL, "");
+        presenter = new Presenter(this, accessToken, userId, email);
         presenter.init();
 
     }
@@ -83,7 +91,9 @@ public class RootActivity extends AppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+            //super.onBackPressed();
+            presenter.backButtonPressed();
+
         }
     }
 
@@ -116,10 +126,12 @@ public class RootActivity extends AppCompatActivity
             presenter.navTabLikesPushed();
         } else if (id == R.id.nav_photos) {
             presenter.navTabAlbumsPushed();
+            /*
         } else if (id == R.id.nav_top) {
             presenter.navTabTopPushed();
         } else if (id == R.id.nav_shop) {
             presenter.navTabShopPushed();
+            */
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
@@ -129,35 +141,42 @@ public class RootActivity extends AppCompatActivity
     @Override
     public void prepareDrawer(User user) {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        TextView name=(TextView)drawer.findViewById(R.id.name);
-        TextView email=(TextView)drawer.findViewById(R.id.email);
-        ImageView imageView=(ImageView)drawer.findViewById(R.id.imageView);
-        name.setText(user.getFirstName()+" "+user.getLastName());
+        TextView name = (TextView) drawer.findViewById(R.id.name);
+        TextView email = (TextView) drawer.findViewById(R.id.email);
+        ImageView imageView = (ImageView) drawer.findViewById(R.id.imageView);
+        name.setText(user.getFirstName() + " " + user.getLastName());
         email.setText(user.getEmail());
         Picasso.with(this).load(user.getProtoUrl()).into(imageView);
     }
 
     @Override
     public void prepareProfile() {
-        Fragment profileFragment=new ProfileFragment();
-        getFragmentManager().beginTransaction().replace(R.id.fragmentContainer,profileFragment).commit();
+        getSupportActionBar().setTitle(R.string.title_profile);
+        Fragment profileFragment = new ProfileFragment();
+        getFragmentManager().beginTransaction().replace(R.id.fragmentContainer, profileFragment).commit();
         presenter.updateContent((MVP.ContentView) profileFragment);
+        handleFab(true);
     }
 
     @Override
     public void prepareLikes() {
-        Fragment fragment=new LikesFragment();
-        getFragmentManager().beginTransaction().replace(R.id.fragmentContainer,fragment).commit();
-        presenter.updateContent((MVP.ContentView)fragment);
-
+        getSupportActionBar().setTitle(R.string.title_likes);
+        Fragment fragment = new LikesFragment();
+        getFragmentManager().beginTransaction().replace(R.id.fragmentContainer, fragment).commit();
+        presenter.updateContent((MVP.ContentView) fragment);
+        handleFab(false);
     }
 
     @Override
     public void prepareAlbums() {
-        Fragment fragment=new AlbumsFragment();
-        getFragmentManager().beginTransaction().replace(R.id.fragmentContainer,fragment).commit();
-        presenter.updateContent((MVP.ContentView)fragment);
+        getSupportActionBar().setTitle(R.string.title_albums);
+        Fragment fragment = new AlbumsFragment();
+        getFragmentManager().beginTransaction().replace(R.id.fragmentContainer, fragment).commit();
+        presenter.updateContent((MVP.ContentView) fragment);
+        handleFab(true);
+
     }
+
 
     @Override
     public void prepareTop() {
@@ -168,4 +187,92 @@ public class RootActivity extends AppCompatActivity
     public void prepareShop() {
 
     }
+
+    @Override
+    public void showIsProgress(boolean isProgressing) {
+        if(isProgressing) progressBar.setVisibility(View.VISIBLE);
+        else progressBar.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void close() {
+        supportFinishAfterTransition();
+    }
+
+    private boolean isFabShowing = true;
+
+    private void handleFab(boolean isShowCommand) {
+        if (isShowCommand) {
+            showFab();
+        } else {
+            hideFab();
+        }
+    }
+
+    private void showFab() {
+        if (!isFabShowing) {
+            isFabShowing = true;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+                fab.animate().translationY(0).start();
+            } else {
+                Animation animation = AnimationUtils.makeInAnimation(this, false);
+                animation.setFillAfter(true);
+
+                animation.setAnimationListener(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                        fab.setClickable(true);
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+
+                    }
+                });
+
+                fab.startAnimation(animation);
+            }
+        }
+
+    }
+
+    private void hideFab() {
+        if (isFabShowing) {
+            isFabShowing = false;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+                final Point point = new Point();
+                this.getWindow().getWindowManager().getDefaultDisplay().getSize(point);
+                final float translation = fab.getY() - point.y;
+                fab.animate().translationYBy(-translation).start();
+            } else {
+                Animation animation = AnimationUtils.makeOutAnimation(this, true);
+                animation.setFillAfter(true);
+
+                animation.setAnimationListener(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                        fab.setClickable(false);
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+
+                    }
+                });
+
+                fab.startAnimation(animation);
+            }
+        }
+    }
+
 }

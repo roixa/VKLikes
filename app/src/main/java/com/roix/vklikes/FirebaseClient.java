@@ -141,7 +141,7 @@ public class FirebaseClient implements MVP.FirebaseClientModel {
     @Override
     public void lockOrRemoveLikeTasks(boolean isLock, Map<String, FirebasePhotoLikeTask> tasks, int removePos) {
         DatabaseReference reference=FirebaseDatabase.getInstance().getReference().child("likesTask");
-        int pos=0;
+
         for (Map.Entry<String, FirebasePhotoLikeTask> entry : tasks.entrySet()) {
             FirebasePhotoLikeTask task=entry.getValue();
             if(isLock){
@@ -149,17 +149,8 @@ public class FirebaseClient implements MVP.FirebaseClientModel {
                 reference.child(entry.getKey()).setValue(task);
             }
             else {
-                if(pos==removePos){
-                    reference.child(entry.getKey()).removeValue();
-                }
-                else {
-                    task.setUsing(false);
-                    reference.child(entry.getKey()).setValue(task);
-                }
+                reference.child(entry.getKey()).removeValue();
             }
-            Log.d( TAG,"lockOrRemoveLikeTasks "+pos);
-
-            pos++;
         }
     }
 
@@ -172,7 +163,8 @@ public class FirebaseClient implements MVP.FirebaseClientModel {
     private Map<String,FirebasePhotoLikeTask> filterData(Map<String,FirebasePhotoLikeTask> pre){
         Map<String,FirebasePhotoLikeTask> post=new HashMap<>();
         for (Map.Entry<String, FirebasePhotoLikeTask> entry : pre.entrySet()){
-            if(!entry.getValue().isUsing()&&post.size()<3){
+            //if(!entry.getValue().isUsing()&&post.size()<3){
+            if(post.size()<3){
                 post.put(entry.getKey(),entry.getValue());
             }
         }

@@ -4,7 +4,9 @@ import com.roix.vklikes.pojo.firebase.FirebasePhotoLikeTask;
 import com.roix.vklikes.pojo.firebase.FirebaseProfile;
 import com.roix.vklikes.pojo.vk.Album;
 import com.roix.vklikes.pojo.vk.AllAlbumsResponse;
+import com.roix.vklikes.pojo.vk.AllPhotosResponse;
 import com.roix.vklikes.pojo.vk.GetPhotosByAlbumResponse;
+import com.roix.vklikes.pojo.vk.Photo;
 import com.roix.vklikes.pojo.vk.User;
 
 import java.util.List;
@@ -24,6 +26,8 @@ public class MVP {
         void prepareTop();
         void prepareShop();
 
+        void showIsProgress(boolean isProgressing);
+        void close();
     }
     public interface ContentView{
         void loadContent(RootPresenter presenter,Object o);
@@ -33,15 +37,18 @@ public class MVP {
     public enum  State {PROFILE,TASKS,TOP,LIKES,SHOP};
 
     public interface RootPresenter{
+        //base
         void init();
         void finish();
-
+        void backButtonPressed();
+        //drawer
         void navTabProfilePushed();
         void navTabLikesPushed();
         void navTabAlbumsPushed();
         void navTabTopPushed();
         void navTabShopPushed();
 
+        //content
         void updateContent(ContentView view);
         void choosedAlbum(Album album);
         void imageLikeClicked(Map<String,FirebasePhotoLikeTask> likeTaskMap,int pos);
@@ -50,7 +57,8 @@ public class MVP {
         //vk api callback
         void onLoadVkUser(User user);
         void onLoadAlbums(AllAlbumsResponse response);
-        void onLoadPhotosByAlbum(GetPhotosByAlbumResponse response);
+        void onLoadPhotosByAlbum(List<Photo> response);
+        void onLoadAllPhotos(List<Photo> response);
         //firebase api callbacks
         void onFirebaseAuth();
         void onUpgradeFirebaseProfile(FirebaseProfile profile);
@@ -61,6 +69,7 @@ public class MVP {
         void loadOwnerById(String vkId);
         void loadOwnerAlbums(String vkId);
         void loadPhotosByAlbum(Album album);
+        void loadAllPhotosById(String vkId);
     }
 
     public interface FirebaseClientModel{

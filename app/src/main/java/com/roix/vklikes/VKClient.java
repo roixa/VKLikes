@@ -2,7 +2,9 @@ package com.roix.vklikes;
 
 import com.roix.vklikes.pojo.vk.Album;
 import com.roix.vklikes.pojo.vk.AllAlbumsResponse;
+import com.roix.vklikes.pojo.vk.AllPhotosResponse;
 import com.roix.vklikes.pojo.vk.GetPhotosByAlbumResponse;
+import com.roix.vklikes.pojo.vk.Photo;
 import com.roix.vklikes.pojo.vk.User;
 import com.roix.vklikes.pojo.vk.UserInfoResponse;
 
@@ -28,7 +30,7 @@ public class VKClient implements MVP.VKClientModel {
 
     private User owner=null;
     private AllAlbumsResponse ownerAlbums=null;
-    private GetPhotosByAlbumResponse choosedPhotos=null;
+    private List<Photo> choosedPhotos=null;
 
 
     public VKClient(MVP.RootPresenter presenter,String accessToken) {
@@ -93,7 +95,7 @@ public class VKClient implements MVP.VKClientModel {
             @Override
             public void onResponse(Call<GetPhotosByAlbumResponse> call, Response<GetPhotosByAlbumResponse> response) {
                 if(response.isSuccessful()){
-                    choosedPhotos=response.body();
+                    choosedPhotos=response.body().getResponse().getItems();
                     presenter.onLoadPhotosByAlbum(choosedPhotos);
 
                 }
@@ -103,6 +105,21 @@ public class VKClient implements MVP.VKClientModel {
             @Override
             public void onFailure(Call<GetPhotosByAlbumResponse> call, Throwable t) {
                 presenter.onError(0,"loadPhotosByAlbum onFailure");
+            }
+        });
+    }
+
+    @Override
+    public void loadAllPhotosById(String vkId) {
+        api.getAllPhotos(accessToken,vkId,"5.6",true,true,0+"",50+"").enqueue(new Callback<AllPhotosResponse>() {
+            @Override
+            public void onResponse(Call<AllPhotosResponse> call, Response<AllPhotosResponse> response) {
+                choosedPhotos=response.body().getResponse().getItems();
+            }
+
+            @Override
+            public void onFailure(Call<AllPhotosResponse> call, Throwable t) {
+
             }
         });
     }
@@ -120,7 +137,7 @@ public class VKClient implements MVP.VKClientModel {
         return ownerAlbums;
     }
 
-    public GetPhotosByAlbumResponse getChoosedPhotos() {
+    public List<Photo> getChoosedPhotos() {
         return choosedPhotos;
     }
 }
