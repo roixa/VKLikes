@@ -16,6 +16,38 @@
             app:cardElevation="@dimen/base_padding"
             android:layout_margin="@dimen/base_padding"
             app:cardCornerRadius="@dimen/base_padding"
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/usersStats"
+
+                    android:padding="@dimen/base_padding"
+                    android:layout_centerHorizontal="true"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@android:style/TextAppearance.Medium" />
+                <TextView
+                    android:id="@+id/userRating"
+                    android:padding="@dimen/base_padding"
+                    android:layout_centerHorizontal="true"
+                    android:layout_below="@id/usersStats"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@android:style/TextAppearance.Large" />
+
+
+            </RelativeLayout>
+        </android.support.v7.widget.CardView>
+
+        <android.support.v7.widget.CardView
+            app:cardElevation="@dimen/base_padding"
+            android:layout_margin="@dimen/base_padding"
+            app:cardCornerRadius="@dimen/base_padding"
             android:layout_width="match_parent"
             android:layout_height="@dimen/photo_like_cv">
             <RelativeLayout

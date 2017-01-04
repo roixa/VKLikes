@@ -11,15 +11,16 @@ import android.view.Window;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.roix.vklikes.pojo.firebase.FirebaseProfile;
 import com.roix.vklikes.pojo.vk.User;
 import com.squareup.picasso.Picasso;
 
 public class ProfileFragment extends Fragment implements MVP.ContentView {
-    private ProgressDialog spinner;
     private TextView userName;
     private TextView userInfo;
     private ImageView userPhoto;
-
+    private TextView userStats;
+    private TextView userRating;
     public ProfileFragment() {
         // Required empty public constructor
 
@@ -29,9 +30,6 @@ public class ProfileFragment extends Fragment implements MVP.ContentView {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        spinner = new ProgressDialog(getActivity());
-        spinner.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        spinner.setMessage("Loading...");
 
     }
 
@@ -42,7 +40,8 @@ public class ProfileFragment extends Fragment implements MVP.ContentView {
         userName=(TextView)v.findViewById(R.id.userName);
         userPhoto=(ImageView)v.findViewById(R.id.userPhoto);
         userInfo=(TextView)v.findViewById(R.id.userInfo);
-
+        userStats=(TextView)v.findViewById(R.id.usersStats);
+        userRating=(TextView)v.findViewById(R.id.userRating);
         return v;
     }
 
@@ -55,6 +54,11 @@ public class ProfileFragment extends Fragment implements MVP.ContentView {
             userInfo.setText(u.getCommon()+" "+u.getFollowers());
 
             Picasso.with(getActivity()).load(u.getProtoUrl()).into(userPhoto);
+        }
+        else if(o instanceof FirebaseProfile){
+            FirebaseProfile profile=(FirebaseProfile) o;
+            userStats.setText("likes in: "+profile.getLikeCountIn()+" likes out: " +profile.getLikeCountOut()+" liked bought: "+profile.getLikeCountBuy());
+            userRating.setText("Rating: "+profile.getRating()*100+" %");
         }
 
 

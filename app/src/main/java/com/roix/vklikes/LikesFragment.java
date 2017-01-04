@@ -8,8 +8,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
-import com.roix.vklikes.pojo.firebase.FirebasePhotoLikeTask;
+import com.roix.vklikes.pojo.firebase.FirebaseLikeTask;
+import com.roix.vklikes.pojo.firebase.FirebaseProfile;
+import com.roix.vklikes.pojo.firebase.FirebaseTasksSet;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -25,9 +28,11 @@ public class LikesFragment extends Fragment implements MVP.ContentView, View.OnC
     private FloatingActionButton fab1;
     private FloatingActionButton fab2;
     private FloatingActionButton fab3;
+    private TextView userStats;
+    private TextView userRating;
 
     private MVP.RootPresenter presenter;
-    private Map<String,FirebasePhotoLikeTask> taskMap;
+    private List<FirebaseLikeTask> taskList;
 
     public LikesFragment() {
         // Required empty public constructor
@@ -51,6 +56,10 @@ public class LikesFragment extends Fragment implements MVP.ContentView, View.OnC
         fab1.setOnClickListener(this);
         fab2.setOnClickListener(this);
         fab3.setOnClickListener(this);
+
+        userStats=(TextView)v.findViewById(R.id.usersStats);
+        userRating=(TextView)v.findViewById(R.id.userRating);
+
         return v;
     }
 
@@ -58,46 +67,58 @@ public class LikesFragment extends Fragment implements MVP.ContentView, View.OnC
     @Override
     public void loadContent(MVP.RootPresenter presenter, Object o) {
         this.presenter=presenter;
-        taskMap=(Map<String,FirebasePhotoLikeTask> ) o;
-        List<FirebasePhotoLikeTask> list = new ArrayList<>(taskMap.values());
-        int sz=list.size();
-        if(sz>0) Picasso.with(getActivity()).load(list.get(0).getPhotoUrl()).into(first);
-        else first.setImageBitmap(null);
-        if(sz>1) Picasso.with(getActivity()).load(list.get(1).getPhotoUrl()).into(second);
-        else second.setImageBitmap(null);
-        if(sz>2) Picasso.with(getActivity()).load(list.get(2).getPhotoUrl()).into(third);
-        else third.setImageBitmap(null);
+        if(o instanceof FirebaseTasksSet){
+            taskList= ((FirebaseTasksSet) o).getTasks();
+            int sz=taskList.size();
+            if(sz>0) Picasso.with(getActivity()).load(taskList.get(0).getPhotoUrl()).into(first);
+            else first.setImageBitmap(null);
+            if(sz>1) Picasso.with(getActivity()).load(taskList.get(1).getPhotoUrl()).into(second);
+            else second.setImageBitmap(null);
+            if(sz>2) Picasso.with(getActivity()).load(taskList.get(2).getPhotoUrl()).into(third);
+            else third.setImageBitmap(null);
 
+        }
+        else if(o instanceof FirebaseProfile){
+            FirebaseProfile profile=(FirebaseProfile) o;
+            userStats.setText("likes in: "+profile.getLikeCountIn()+" likes out: " +profile.getLikeCountOut()+" liked bought: "+profile.getLikeCountBuy());
+            userRating.setText("Rating: "+profile.getRating()*100+" %");
+        }
     }
 
     @Override
     public void onClick(View v) {
 
-        List<FirebasePhotoLikeTask> list = new ArrayList<>(taskMap.values());
 
         FullImageDialogFragment dialogFragment = null;
 
         switch (v.getId()){
             case R.id.imageFirst:
-                dialogFragment=FullImageDialogFragment.newInstance(list.get(0).getPhotoUrl(),"");
-                dialogFragment.show(getFragmentManager(),"diag1");
+                if(taskList.size()>0){
+                    dialogFragment=FullImageDialogFragment.newInstance(taskList.get(0).getPhotoUrl(),"");
+                    dialogFragment.show(getFragmentManager(),"diag1");
+                }
                 break;
             case R.id.imageSecond:
-                dialogFragment=FullImageDialogFragment.newInstance(list.get(1).getPhotoUrl(),"");
-                dialogFragment.show(getFragmentManager(),"diag1");
+                if(taskList.size()>1) {
+                    dialogFragment=FullImageDialogFragment.newInstance(taskList.get(1).getPhotoUrl(),"");
+                    dialogFragment.show(getFragmentManager(),"diag1");
+
+                }
                 break;
             case R.id.imageThird:
-                dialogFragment=FullImageDialogFragment.newInstance(list.get(2).getPhotoUrl(),"");
-                dialogFragment.show(getFragmentManager(),"diag1");
+                if(taskList.size()>2) {
+                    dialogFragment=FullImageDialogFragment.newInstance(taskList.get(2).getPhotoUrl(),"");
+                    dialogFragment.show(getFragmentManager(),"diag1");
+                }
                 break;
             case R.id.fab1:
-                presenter.imageLikeClicked(taskMap,0);
+                presenter.imageLikeClicked(taskList,0);
                 break;
             case R.id.fab2:
-                presenter.imageLikeClicked(taskMap,1);
+                presenter.imageLikeClicked(taskList,1);
                 break;
             case R.id.fab3:
-                presenter.imageLikeClicked(taskMap,2);
+                presenter.imageLikeClicked(taskList,2);
                 break;
 
         }

@@ -5,22 +5,20 @@ import android.util.Log;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-import com.roix.vklikes.pojo.firebase.FirebasePhotoLikeTask;
+import com.roix.vklikes.pojo.firebase.FirebaseLikeTask;
 import com.roix.vklikes.pojo.firebase.FirebaseProfile;
+import com.roix.vklikes.pojo.firebase.FirebaseTasksSet;
 import com.roix.vklikes.pojo.vk.User;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -31,32 +29,22 @@ import java.util.Map;
 public class FirebaseClient implements MVP.FirebaseClientModel {
     private MVP.RootPresenter presenter;
     private String TAG="FirebaseClient";
+    private DatabaseReference dbRef;
     private FirebaseAuth mFirebaseAuth;
-    ValueEventListener ownerListener;
-
-    OnCompleteListener authListener;
+    private ValueEventListener ownerListener;
+    private OnCompleteListener authListener;
+    private FirebaseProfile owner;
+    private List<FirebaseLikeTask> lastTasks;
 
 
     public FirebaseClient(MVP.RootPresenter presenter){
         this.presenter=presenter;
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-
+        dbRef = FirebaseDatabase.getInstance().getReference();
     }
 
     @Override
     public void singIn() {
         mFirebaseAuth= FirebaseAuth.getInstance();
-
-        /*
-        mFirebaseAuth.addAuthStateListener(new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                Log.d(TAG,"onAuthStateChanged   onComplete " +firebaseAuth.toString());
-
-            }
-        });
-        */
-
         authListener=new OnCompleteListener() {
             @Override
             public void onComplete(@NonNull Task task) {
@@ -64,7 +52,6 @@ public class FirebaseClient implements MVP.FirebaseClientModel {
                 if (task.isSuccessful()) {
                     presenter.onFirebaseAuth();
                 }
-
             }
         };
         mFirebaseAuth.signInAnonymously()
@@ -72,87 +59,76 @@ public class FirebaseClient implements MVP.FirebaseClientModel {
     }
 
     @Override
-    public void listenUser(final User user) {
-        final FirebaseDatabase database = FirebaseDatabase.getInstance();
-
+    public void listenOwner(final String ownerId) {
         ownerListener=new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if(!dataSnapshot.hasChild(user.getId())){
-                    database.getReference().child("users").child(user.getId()).updateChildren(new FirebaseProfile(user.getEmail(),user.getId(),0,0,0,0.d).toMap());
+                if(!dataSnapshot.hasChild(ownerId)){
+                    Log.d( TAG,"listenOwner create user");
+                    dataSnapshot.getRef().child(ownerId).updateChildren(new FirebaseProfile(ownerId,0,0,0,0.d).toMap());
                 }
                 else {
-                    FirebaseProfile profile=  dataSnapshot.child(user.getId()).getValue(FirebaseProfile.class);
-                    presenter.onUpgradeFirebaseProfile(profile);
+                    Log.d( TAG,"listenOwner get user");
+                    owner=  dataSnapshot.child(ownerId).getValue(FirebaseProfile.class);
+                    presenter.onUpgradeFirebaseProfile(owner);
                 }
-
             }
-
             @Override
             public void onCancelled(DatabaseError databaseError) {
-
             }
         };
-        database.getReference().child("users").addValueEventListener(ownerListener);
+        if(owner==null){
+            dbRef.child("users").addValueEventListener(ownerListener);
+        }
+        else {
+            presenter.onUpgradeFirebaseProfile(owner);
+        }
     }
 
     @Override
-    public void addPhotoLikeTask(FirebasePhotoLikeTask task) {
-        FirebaseDatabase.getInstance().getReference().child("likesTask").push().setValue(task);
+    public void addPhotoLikeTasks(List<FirebaseLikeTask> tasks) {
+        owner.addTasks(tasks);
+        owner.setLikeCountOut(owner.getLikeCountOut()+tasks.size());
+        owner.refreshData();
+        dbRef.child("users").child(owner.getUserId()).updateChildren(owner.toMap());
     }
 
     @Override
-    public void getAndUsePhotoLikeTasks() {
-        Log.d(TAG,"getAndUsePhotoLikeTasks start ");
-        Query recentPostsQuery = FirebaseDatabase.getInstance().getReference().child("likesTask");//.limitToLast(3).orderByChild("isUsing").equalTo(false);
-
-
-        //recentPostsQuery.keepSynced(true);
-
+    public void loadPhotoLikeTasksSet() {
+        Query activeUsersQuery = dbRef.child("users").orderByChild("isActive").equalTo(true).limitToLast(4);
         ValueEventListener likesTaskListener=new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Map<String,FirebasePhotoLikeTask> ret=new HashMap<>();
-
+                List<FirebaseLikeTask> choosedTasks=new ArrayList<>();
                 Log.d( TAG,"Count "+dataSnapshot.getChildrenCount());
                 for (DataSnapshot postSnapshot: dataSnapshot.getChildren()) {
-
-                    FirebasePhotoLikeTask post = postSnapshot.getValue(FirebasePhotoLikeTask.class);
-                    Log.d( TAG,"post "+post.getPhotoID());
-                    postSnapshot.getRef().setValue(post);
-                    ret.put(postSnapshot.getKey(),post);
+                    FirebaseProfile profile = postSnapshot.getValue(FirebaseProfile.class);
+                    Log.d( TAG,"profile tasks size "+profile.getTasks().size());
+                    FirebaseLikeTask task=profile.removeTask();
+                    profile.setLikeCountIn(profile.getLikeCountIn()+1);
+                    profile.refreshData();
+                    postSnapshot.getRef().updateChildren(profile.toMap());
+                    choosedTasks.add(task);
                 }
-                ret=filterData(ret);
-                Log.d( TAG,"last "+ret.size());
-                lockOrRemoveLikeTasks(true,ret,0);
+                presenter.onLoadLikeTasks(new FirebaseTasksSet(choosedTasks));
                 dataSnapshot.getRef().removeEventListener(this);
-                presenter.onLoadLikeTasks(ret);
             }
-
             @Override
             public void onCancelled(DatabaseError databaseError) {
 
             }
         };
-        recentPostsQuery.addValueEventListener(likesTaskListener);
-
+        activeUsersQuery.addValueEventListener(likesTaskListener);
     }
 
-    @Override
-    public void lockOrRemoveLikeTasks(boolean isLock, Map<String, FirebasePhotoLikeTask> tasks, int removePos) {
-        DatabaseReference reference=FirebaseDatabase.getInstance().getReference().child("likesTask");
-
-        for (Map.Entry<String, FirebasePhotoLikeTask> entry : tasks.entrySet()) {
-            FirebasePhotoLikeTask task=entry.getValue();
-            if(isLock){
-                task.setUsing(true);
-                reference.child(entry.getKey()).setValue(task);
-            }
-            else {
-                reference.child(entry.getKey()).removeValue();
-            }
-        }
+    private synchronized FirebaseProfile getOwner() {
+        return owner;
     }
+
+    private synchronized void setOwner(FirebaseProfile owner) {
+        this.owner = owner;
+    }
+
 
     @Override
     public void finish() {
@@ -160,9 +136,9 @@ public class FirebaseClient implements MVP.FirebaseClientModel {
         database.getReference().child("users").removeEventListener(ownerListener);
 
     }
-    private Map<String,FirebasePhotoLikeTask> filterData(Map<String,FirebasePhotoLikeTask> pre){
-        Map<String,FirebasePhotoLikeTask> post=new HashMap<>();
-        for (Map.Entry<String, FirebasePhotoLikeTask> entry : pre.entrySet()){
+    private Map<String,FirebaseLikeTask> filterData(Map<String,FirebaseLikeTask> pre){
+        Map<String,FirebaseLikeTask> post=new HashMap<>();
+        for (Map.Entry<String, FirebaseLikeTask> entry : pre.entrySet()){
             //if(!entry.getValue().isUsing()&&post.size()<3){
             if(post.size()<3){
                 post.put(entry.getKey(),entry.getValue());

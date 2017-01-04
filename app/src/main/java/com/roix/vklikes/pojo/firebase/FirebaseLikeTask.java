@@ -4,20 +4,23 @@ package com.roix.vklikes.pojo.firebase;
  * Created by roix on 02.01.2017.
  */
 
-public class FirebasePhotoLikeTask {
+public class FirebaseLikeTask {
     private String photoID;
     private String ownerID;
     private String photoUrl;
     private boolean isPhoto=true;
-    boolean isUsing=false;
 
 
-    public FirebasePhotoLikeTask(){}
-    public FirebasePhotoLikeTask(boolean isPhoto, String photoID, String ownerID,String photoUrl) {
+    public FirebaseLikeTask(){}
+    public FirebaseLikeTask(boolean isPhoto, String photoID, String ownerID, String photoUrl) {
         this.isPhoto = isPhoto;
         this.photoID = photoID;
         this.ownerID = ownerID;
         this.photoUrl=photoUrl;
+    }
+
+    public boolean equals(FirebaseLikeTask t) {
+        return photoID.equals(t.getPhotoID())&&ownerID.equals(t.getOwnerID());
     }
 
     public String getPhotoID() {
@@ -44,13 +47,6 @@ public class FirebasePhotoLikeTask {
         isPhoto = photo;
     }
 
-    public boolean isUsing() {
-        return isUsing;
-    }
-
-    public void setUsing(boolean using) {
-        isUsing = using;
-    }
     public String getPhotoUrl() {
         return photoUrl;
     }

@@ -3,6 +3,7 @@ package com.roix.vklikes.pojo.firebase;
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,15 +14,15 @@ import java.util.Objects;
  */
 @IgnoreExtraProperties
 public class FirebaseProfile {
-    private String email;
     private String userId;
     private Integer likeCountIn;
     private Integer likeCountOut;
     private Integer likeCountBuy;
     private Double rating;
+    boolean isActive=false;
+    private List<FirebaseLikeTask> tasks;
 
-    public FirebaseProfile(String email, String userId, Integer likeCountIn, Integer likeCountOut,Integer likeCountBuy,Double rating) {
-        this.email = email;
+    public FirebaseProfile(String userId, Integer likeCountIn, Integer likeCountOut,Integer likeCountBuy,Double rating) {
         this.userId = userId;
         this.likeCountIn = likeCountIn;
         this.likeCountOut = likeCountOut;
@@ -37,13 +38,47 @@ public class FirebaseProfile {
     @Exclude
     public Map<String,Object> toMap(){
         HashMap<String, Object> result = new HashMap<>();
-        result.put("email", email);
         result.put("userId", userId);
         result.put("likeCountIn", likeCountIn);
         result.put("likeCountOut", likeCountOut);
         result.put("likeCountBuy", likeCountBuy);
         result.put("rating", rating);
+        result.put("isActive", isActive);
+        result.put("tasks", tasks);
         return result;
+    }
+
+    public void refreshData(){
+        if((likeCountOut+likeCountBuy)>likeCountIn){
+            setActive(true);
+        }
+        else {
+            setActive(false);
+        }
+        setRating((double)likeCountIn/(likeCountOut+likeCountBuy));
+    }
+
+    public List<FirebaseLikeTask> getTasks() {
+        return tasks;
+    }
+
+    public void setTasks(List<FirebaseLikeTask> tasks) {
+        this.tasks = tasks;
+    }
+    public void addTasks(List<FirebaseLikeTask> t){
+        if(tasks==null) tasks=new ArrayList<>();
+        tasks.addAll(t);
+    }
+
+    public void removeTask(FirebaseLikeTask t){
+        List<FirebaseLikeTask> newTasks=new ArrayList<>();
+        for(FirebaseLikeTask task:tasks){
+            if(!task.equals(t))newTasks.add(task);
+        }
+        setTasks(newTasks);
+    }
+    public FirebaseLikeTask removeTask(){
+        return tasks.remove(0);
     }
 
     public Integer getLikeCountBuy() {
@@ -86,13 +121,15 @@ public class FirebaseProfile {
         this.userId = userId;
     }
 
-    public String getEmail() {
-        return email;
+
+    public boolean isActive() {
+        return isActive;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setActive(boolean isActive) {
+        this.isActive = isActive;
     }
+
 
 
 }

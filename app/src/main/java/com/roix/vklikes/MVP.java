@@ -1,11 +1,10 @@
 package com.roix.vklikes;
 
-import com.roix.vklikes.pojo.firebase.FirebasePhotoLikeTask;
+import com.roix.vklikes.pojo.firebase.FirebaseLikeTask;
 import com.roix.vklikes.pojo.firebase.FirebaseProfile;
+import com.roix.vklikes.pojo.firebase.FirebaseTasksSet;
 import com.roix.vklikes.pojo.vk.Album;
 import com.roix.vklikes.pojo.vk.AllAlbumsResponse;
-import com.roix.vklikes.pojo.vk.AllPhotosResponse;
-import com.roix.vklikes.pojo.vk.GetPhotosByAlbumResponse;
 import com.roix.vklikes.pojo.vk.Photo;
 import com.roix.vklikes.pojo.vk.User;
 
@@ -51,7 +50,7 @@ public class MVP {
         //content
         void updateContent(ContentView view);
         void choosedAlbum(Album album);//null == all photos
-        void imageLikeClicked(Map<String,FirebasePhotoLikeTask> likeTaskMap,int pos);
+        void imageLikeClicked(List<FirebaseLikeTask> likeTaskMap, int pos);
 
         void onError(int code,String err);
         //vk api callback
@@ -62,7 +61,7 @@ public class MVP {
         //firebase api callbacks
         void onFirebaseAuth();
         void onUpgradeFirebaseProfile(FirebaseProfile profile);
-        void onLoadLikeTasks(Map<String,FirebasePhotoLikeTask> tasks);
+        void onLoadLikeTasks(FirebaseTasksSet tasksSet);
     }
 
     public interface VKClientModel{
@@ -74,10 +73,9 @@ public class MVP {
 
     public interface FirebaseClientModel{
         void singIn();
-        void listenUser(User user);
-        void addPhotoLikeTask(FirebasePhotoLikeTask task);
-        void getAndUsePhotoLikeTasks();
-        void lockOrRemoveLikeTasks(boolean isLock,Map<String,FirebasePhotoLikeTask> tasks,int removePos);//lock mean isUsing flag = true, update server, or this remove liked task and unlock other
+        void listenOwner(String ownerId);
+        void addPhotoLikeTasks(List<FirebaseLikeTask> tasks);
+        void loadPhotoLikeTasksSet();
         void finish();
 
     }
