@@ -57,7 +57,7 @@ public class ProfileFragment extends Fragment implements MVP.ContentView {
         }
         else if(o instanceof FirebaseProfile){
             FirebaseProfile profile=(FirebaseProfile) o;
-            userStats.setText("likes in: "+profile.getLikeCountIn()+" likes out: " +profile.getLikeCountOut()+" liked bought: "+profile.getLikeCountBuy());
+            userStats.setText("likes in: "+profile.getLikeCountIn()+" likes out: " +profile.getLikeCountOut()+" liked bought: "+profile.getShowCountBuy());
             userRating.setText("Rating: "+profile.getRating()*100+" %");
         }
 

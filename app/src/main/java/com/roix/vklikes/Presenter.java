@@ -121,13 +121,14 @@ public class Presenter implements MVP.RootPresenter {
     }
 
     @Override
-    public void imageLikeClicked(List<FirebaseLikeTask> tasks, int pos) {
+    public void imageLikeClicked(FirebaseLikeTask task) {
         Log.d(TAG,"imageLikeClicked");
         firebaseClient.loadPhotoLikeTasksSet();
-        addLikeTasks(3);
+        vkClient.addLike(task.getOwnerID(),task.getPhotoID());
         rootView.showIsProgress(true);
     }
 
+    //@TODO add errors handling
     @Override
     public void onError(int code, String err) {
 
@@ -165,6 +166,13 @@ public class Presenter implements MVP.RootPresenter {
     public void onLoadAllPhotos(List<Photo> response) {
         Log.d(TAG,"onLoadAllPhotos " +response.size());
         rootView.showIsProgress(false);
+    }
+
+    @Override
+    public void onAddLikeResponse(String contentOwnerId) {
+        Log.d(TAG,"onAddLikeResponse"+contentOwnerId);
+        addLikeTasks(3);
+        firebaseClient.registerLikeEvent(contentOwnerId);
     }
 
     @Override

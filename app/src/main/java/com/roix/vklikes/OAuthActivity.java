@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.preference.Preference;
 import android.preference.PreferenceManager;
+import android.support.test.espresso.core.deps.guava.base.Splitter;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -14,6 +15,10 @@ import android.util.Log;
 import android.view.Window;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URL;
+import java.util.Map;
 
 public class OAuthActivity extends AppCompatActivity {
     private WebView webView;
@@ -64,16 +69,16 @@ public class OAuthActivity extends AppCompatActivity {
             if (url.startsWith(Constants.VK_OAUTH_REDIRECT_URL)) {
                 Log.d(TAG, "onPageFinished all: "+url);
 
-                String urls[] = url.split("=");
-                String urlsToken[]=urls[1].split("&");
-                String urlsId[]=urls[urls.length-2].split("&");
-                String code = urlsToken[0];
-                String userid=urlsId[0];
-                String email=urls[urls.length-1];
+                String query = url.split("\\#")[1];
+                Map<String, String> map = Splitter.on('&').trimResults().withKeyValueSeparator("=").split(query);
+
+                String code = map.get(Constants.PREF_ACCESS_TOKEN);
+                String userid=map.get(Constants.PREF_USER_ID);
+                String email=map.get(Constants.PREF_USER_EMAIL);
                 SharedPreferences preference=PreferenceManager.getDefaultSharedPreferences(context);
                 preference.edit().putString(Constants.PREF_ACCESS_TOKEN,code).commit();
                 preference.edit().putString(Constants.PREF_USER_ID,userid).commit();
-                preference.edit().putString(Constants.PREF_USER_EMAIL,email).commit();
+                preference.edit().putString(Constants.PREF_USER_EMAIL,email  ).commit();
                 Log.d(TAG, "onPageFinished code: " + code+" user id: "+userid+" email: "+email);
                 Intent intent = new Intent(OAuthActivity.this, RootActivity.class);
                 startActivity(intent);
@@ -82,5 +87,7 @@ public class OAuthActivity extends AppCompatActivity {
         }
 
     }
+
+
 
 }

@@ -80,7 +80,7 @@ public class LikesFragment extends Fragment implements MVP.ContentView, View.OnC
         }
         else if(o instanceof FirebaseProfile){
             FirebaseProfile profile=(FirebaseProfile) o;
-            userStats.setText("likes in: "+profile.getLikeCountIn()+" likes out: " +profile.getLikeCountOut()+" liked bought: "+profile.getLikeCountBuy());
+            userStats.setText("likes in: "+profile.getLikeCountIn()+" likes out: " +profile.getLikeCountOut()+" liked bought: "+profile.getShowCountBuy());
             userRating.setText("Rating: "+profile.getRating()*100+" %");
         }
     }
@@ -112,13 +112,16 @@ public class LikesFragment extends Fragment implements MVP.ContentView, View.OnC
                 }
                 break;
             case R.id.fab1:
-                presenter.imageLikeClicked(taskList,0);
+                if((taskList.size()>0))
+                    presenter.imageLikeClicked(taskList.get(0));
                 break;
             case R.id.fab2:
-                presenter.imageLikeClicked(taskList,1);
+                if((taskList.size()>1))
+                    presenter.imageLikeClicked(taskList.get(1));
                 break;
             case R.id.fab3:
-                presenter.imageLikeClicked(taskList,2);
+                if((taskList.size()>2))
+                    presenter.imageLikeClicked(taskList.get(2));
                 break;
 
         }

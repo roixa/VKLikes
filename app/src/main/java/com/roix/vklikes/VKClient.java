@@ -2,6 +2,7 @@ package com.roix.vklikes;
 
 import android.util.Log;
 
+import com.roix.vklikes.pojo.vk.AddLikeResponse;
 import com.roix.vklikes.pojo.vk.Album;
 import com.roix.vklikes.pojo.vk.AllAlbumsResponse;
 import com.roix.vklikes.pojo.vk.AllPhotosResponse;
@@ -30,9 +31,9 @@ public class VKClient implements MVP.VKClientModel {
     private String accessToken;
     private String TAG="VKClient";
 
-    private User owner=null;
-    private AllAlbumsResponse ownerAlbums=null;
-    private List<Photo> choosedPhotos=null;
+    private User owner;
+    private AllAlbumsResponse ownerAlbums;
+    private List<Photo> choosedPhotos;
 
 
     public VKClient(MVP.RootPresenter presenter,String accessToken) {
@@ -46,16 +47,18 @@ public class VKClient implements MVP.VKClientModel {
 
     }
 
-
-    //@TODO if(true) replace if(owner==null) and fix error
+    //@TODO if(true) replace if(owner==null) and fix error!!
     @Override
     public void loadOwnerById(String vkId) {
         if(true) {
             api.geUserInfo(accessToken, vkId, Constants.USER_INFO_FIELDS, "5.8").enqueue(new Callback<UserInfoResponse>() {
                 @Override
                 public void onResponse(Call<UserInfoResponse> call, Response<UserInfoResponse> response) {
-                    owner = response.body().getUser().get(0);
-                    presenter.onLoadVkUser(owner);
+                    if(response.isSuccessful()){
+                        owner = response.body().getUser().get(0);
+                        presenter.onLoadVkUser(owner);
+
+                    }
                 }
 
                 @Override
@@ -126,6 +129,24 @@ public class VKClient implements MVP.VKClientModel {
             @Override
             public void onFailure(Call<AllPhotosResponse> call, Throwable t) {
                 Log.d(TAG,"loadAllPhotosById onFailure");
+            }
+        });
+    }
+
+    @Override
+    public void addLike(final String contentOwnerId, String itemId) {
+        api.addLike(accessToken,contentOwnerId,"5.6",itemId,"photo").enqueue(new Callback<AddLikeResponse>() {
+            @Override
+            public void onResponse(Call<AddLikeResponse> call, Response<AddLikeResponse> response) {
+                Log.d(TAG,"addLike "+response.isSuccessful());
+
+                if(response.isSuccessful())
+                    presenter.onAddLikeResponse(contentOwnerId);
+            }
+
+            @Override
+            public void onFailure(Call<AddLikeResponse> call, Throwable t) {
+                Log.d(TAG,"addLike onFailure ");
             }
         });
     }

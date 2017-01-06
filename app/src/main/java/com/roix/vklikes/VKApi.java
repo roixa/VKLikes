@@ -1,5 +1,6 @@
 package com.roix.vklikes;
 
+import com.roix.vklikes.pojo.vk.AddLikeResponse;
 import com.roix.vklikes.pojo.vk.AllAlbumsResponse;
 import com.roix.vklikes.pojo.vk.AllPhotosResponse;
 import com.roix.vklikes.pojo.vk.GetPhotosByAlbumResponse;
@@ -34,6 +35,10 @@ public interface VKApi {
                                                     @Query("v") String version, @Query("album_id") String albumId, @Query("rev") boolean rev,
                                                     @Query("extended") boolean extended, @Query("photo_sizes") boolean photoSizes,
                                                     @Query("offset") String offset, @Query("count") String count);//rev=true extended=true photo_sizes=true v="5.60"
+    @GET("/method/likes.add")
+    Call<AddLikeResponse> addLike(@Query("access_token") String accessToken,
+                                  @Query("owner_id") String ownerID, @Query("v") String version,
+                                  @Query("item_id") String itemId, @Query("type") String type);//type=photo  v="5.60"
 
 
 }

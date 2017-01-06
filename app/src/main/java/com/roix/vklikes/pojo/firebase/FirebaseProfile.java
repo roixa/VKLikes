@@ -17,20 +17,30 @@ public class FirebaseProfile {
     private String userId;
     private Integer likeCountIn;
     private Integer likeCountOut;
-    private Integer likeCountBuy;
+    private Integer showCountBuy;
+    private Integer showCountIn;
+    private Integer showCountOut;
     private Double rating;
     boolean isActive=false;
     private List<FirebaseLikeTask> tasks;
 
-    public FirebaseProfile(String userId, Integer likeCountIn, Integer likeCountOut,Integer likeCountBuy,Double rating) {
+    public FirebaseProfile(String userId) {
         this.userId = userId;
-        this.likeCountIn = likeCountIn;
-        this.likeCountOut = likeCountOut;
-        this.likeCountBuy = likeCountBuy;
-        this.rating = rating;
+        this.likeCountIn = 0;
+        this.likeCountOut = 0;
+        this.showCountBuy = 0;
+        this.showCountIn = 0;
+        this.showCountOut = 0;
+        this.rating = 0.;
 
     }
     public FirebaseProfile(){
+        this.likeCountIn = 0;
+        this.likeCountOut = 0;
+        this.showCountBuy = 0;
+        this.showCountIn = 0;
+        this.showCountOut = 0;
+        this.rating = 0.;
 
     }
 
@@ -41,21 +51,47 @@ public class FirebaseProfile {
         result.put("userId", userId);
         result.put("likeCountIn", likeCountIn);
         result.put("likeCountOut", likeCountOut);
-        result.put("likeCountBuy", likeCountBuy);
+        result.put("showCountBuy", showCountBuy);
+        result.put("showCountIn", showCountIn);
+        result.put("showCountOut", showCountOut);
         result.put("rating", rating);
         result.put("isActive", isActive);
         result.put("tasks", tasks);
         return result;
     }
 
+    //@TODO make correct rating
     public void refreshData(){
-        if((likeCountOut+likeCountBuy)>likeCountIn){
+
+        //if((showCountBuy+showCountOut)>likeCountIn){
+        if((tasks!=null&&tasks.size()>0)){
             setActive(true);
         }
         else {
             setActive(false);
         }
-        setRating((double)likeCountIn/(likeCountOut+likeCountBuy));
+        setRating((showCountBuy+showCountOut)==0?0:(double)likeCountIn/(showCountBuy+showCountOut));
+    }
+
+    public void addLikeIn(){
+        likeCountIn++;
+        refreshData();
+    }
+    public void addLikeOut(){
+        likeCountOut++;
+        refreshData();
+    }
+    public void addShowsIn(int i){
+        showCountIn+=i;
+        refreshData();
+    }
+    public void addShowsOut(int i){
+        showCountOut+=i;
+        refreshData();
+    }
+    public void addShowsBuy(int i){
+        showCountBuy+=i;
+        refreshData();
     }
 
     public List<FirebaseLikeTask> getTasks() {
@@ -81,13 +117,6 @@ public class FirebaseProfile {
         return tasks.remove(0);
     }
 
-    public Integer getLikeCountBuy() {
-        return likeCountBuy;
-    }
-
-    public void setLikeCountBuy(Integer likeCountBuy) {
-        this.likeCountBuy = likeCountBuy;
-    }
 
     public Double getRating() {
         return rating;
@@ -130,6 +159,27 @@ public class FirebaseProfile {
         this.isActive = isActive;
     }
 
+    public Integer getShowCountBuy() {
+        return showCountBuy;
+    }
 
+    public void setShowCountBuy(Integer showCountBuy) {
+        this.showCountBuy = showCountBuy;
+    }
 
+    public Integer getShowCountIn() {
+        return showCountIn;
+    }
+
+    public void setShowCountIn(Integer showCountIn) {
+        this.showCountIn = showCountIn;
+    }
+
+    public Integer getShowCountOut() {
+        return showCountOut;
+    }
+
+    public void setShowCountOut(Integer showCountOut) {
+        this.showCountOut = showCountOut;
+    }
 }
