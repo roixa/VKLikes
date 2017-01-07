@@ -4,6 +4,7 @@ package com.roix.vklikes;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.design.widget.FloatingActionButton;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,9 +31,10 @@ public class LikesFragment extends Fragment implements MVP.ContentView, View.OnC
     private FloatingActionButton fab3;
     private TextView userStats;
     private TextView userRating;
-
+    private String TAG="LikesFragment";
     private MVP.RootPresenter presenter;
     private FirebaseTasksSet tasksSet;
+    private Object latestContent;
 
     public LikesFragment() {
         // Required empty public constructor
@@ -59,14 +61,15 @@ public class LikesFragment extends Fragment implements MVP.ContentView, View.OnC
 
         userStats=(TextView)v.findViewById(R.id.usersStats);
         userRating=(TextView)v.findViewById(R.id.userRating);
+        if(latestContent!=null)loadContent(presenter,latestContent);
 
         return v;
     }
 
-    //@TODO make safety
     @Override
     public void loadContent(MVP.RootPresenter presenter, Object o) {
         this.presenter=presenter;
+        latestContent=o;
         if(o instanceof FirebaseTasksSet){
             tasksSet= ((FirebaseTasksSet) o);
             int sz=tasksSet.getTasks().size();
@@ -80,8 +83,11 @@ public class LikesFragment extends Fragment implements MVP.ContentView, View.OnC
         }
         else if(o instanceof FirebaseProfile){
             FirebaseProfile profile=(FirebaseProfile) o;
-            userStats.setText("likes in: "+profile.getLikeCountIn()+" likes out: " +profile.getLikeCountOut()+" liked bought: "+profile.getShowCountBuy());
-            userRating.setText("Rating: "+profile.getRating()*100+" %");
+            Log.d(TAG,"o instanceof FirebaseProfile"+profile.getUserId());
+            if(userStats!=null)
+                userStats.setText("likes in: "+profile.getLikeCountIn()+" likes out: " +profile.getLikeCountOut()+" liked bought: "+profile.getShowCountBuy());
+            if(userRating!=null)
+                userRating.setText("Rating: "+profile.getRating()*100+" %");
         }
     }
 

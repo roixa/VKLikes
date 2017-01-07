@@ -21,6 +21,7 @@ public class ProfileFragment extends Fragment implements MVP.ContentView {
     private ImageView userPhoto;
     private TextView userStats;
     private TextView userRating;
+    private Object latestContent;
     public ProfileFragment() {
         // Required empty public constructor
 
@@ -42,23 +43,29 @@ public class ProfileFragment extends Fragment implements MVP.ContentView {
         userInfo=(TextView)v.findViewById(R.id.userInfo);
         userStats=(TextView)v.findViewById(R.id.usersStats);
         userRating=(TextView)v.findViewById(R.id.userRating);
+        if(latestContent!=null)loadContent(null,latestContent);
         return v;
     }
 
     @Override
     public void loadContent(MVP.RootPresenter presenter,Object o) {
+        latestContent=o;
         //spinner.dismiss();
         if (o instanceof User) {
             User u=((User) o);
-            userName.setText(u.getFirstName()+" "+u.getLastName());
-            userInfo.setText(u.getCommon()+" "+u.getFollowers());
+            if(userName!=null)
+                userName.setText(u.getFirstName()+" "+u.getLastName());
+            if(userInfo!=null)
+                userInfo.setText(u.getCommon()+" "+u.getFollowers());
 
             Picasso.with(getActivity()).load(u.getProtoUrl()).into(userPhoto);
         }
         else if(o instanceof FirebaseProfile){
             FirebaseProfile profile=(FirebaseProfile) o;
-            userStats.setText("likes in: "+profile.getLikeCountIn()+" likes out: " +profile.getLikeCountOut()+" liked bought: "+profile.getShowCountBuy());
-            userRating.setText("Rating: "+profile.getRating()*100+" %");
+            if(userStats!=null)
+                userStats.setText("likes in: "+profile.getLikeCountIn()+" likes out: " +profile.getLikeCountOut()+" liked bought: "+profile.getShowCountBuy());
+            if(userRating!=null)
+                userRating.setText("Rating: "+profile.getRating()*100+" %");
         }
 
 

@@ -43,9 +43,6 @@ public class RootActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                //        .setAction("Action", null).show();
-                navigationView.getMenu().getItem(1).setChecked(true);
                 presenter.navTabLikesPushed();
 
             }
@@ -59,9 +56,6 @@ public class RootActivity extends AppCompatActivity
 
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-        navigationView.getMenu().getItem(0).setChecked(true);
-
-
     }
 
     @Override
@@ -149,6 +143,8 @@ public class RootActivity extends AppCompatActivity
 
     @Override
     public void prepareProfile() {
+        navigationView.getMenu().getItem(0).setChecked(true);
+
         getSupportActionBar().setTitle(R.string.title_profile);
         Fragment profileFragment = new ProfileFragment();
         getFragmentManager().beginTransaction().replace(R.id.fragmentContainer, profileFragment).commit();
@@ -158,6 +154,8 @@ public class RootActivity extends AppCompatActivity
 
     @Override
     public void prepareLikes() {
+        navigationView.getMenu().getItem(1).setChecked(true);
+
         getSupportActionBar().setTitle(R.string.title_likes);
         Fragment fragment = new LikesFragment();
         getFragmentManager().beginTransaction().replace(R.id.fragmentContainer, fragment).commit();
@@ -167,6 +165,8 @@ public class RootActivity extends AppCompatActivity
 
     @Override
     public void prepareAlbums() {
+        navigationView.getMenu().getItem(2).setChecked(true);
+
         getSupportActionBar().setTitle(R.string.title_albums);
         Fragment fragment = new AlbumsFragment();
         getFragmentManager().beginTransaction().replace(R.id.fragmentContainer, fragment).commit();

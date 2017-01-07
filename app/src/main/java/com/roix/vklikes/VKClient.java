@@ -49,51 +49,40 @@ public class VKClient implements MVP.VKClientModel {
 
     }
 
-    //@TODO if(true) replace if(owner==null) and fix error!!
     @Override
     public void loadOwnerById(String vkId) {
-        if(true) {
-            api.geUserInfo(accessToken, vkId, Constants.USER_INFO_FIELDS, "5.8").enqueue(new Callback<UserInfoResponse>() {
-                @Override
-                public void onResponse(Call<UserInfoResponse> call, Response<UserInfoResponse> response) {
-                    if(response.isSuccessful()){
-                        owner = response.body().getUser().get(0);
-                        presenter.onLoadVkUser(owner);
-
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<UserInfoResponse> call, Throwable t) {
+        api.geUserInfo(accessToken, vkId, Constants.USER_INFO_FIELDS, "5.8").enqueue(new Callback<UserInfoResponse>() {
+            @Override
+            public void onResponse(Call<UserInfoResponse> call, Response<UserInfoResponse> response) {
+                if(response.isSuccessful()){
+                    owner = response.body().getUser().get(0);
+                    presenter.onLoadVkUser(owner);
 
                 }
-            });
-        }
-        else {
-            presenter.onLoadVkUser(owner);
-        }
+            }
+
+            @Override
+            public void onFailure(Call<UserInfoResponse> call, Throwable t) {
+
+            }
+        });
 
     }
 
     @Override
     public void loadOwnerAlbums(String vkId) {
-        if(true) {
-            api.getAllAlbums(accessToken, vkId, "5.6", true, true).enqueue(new Callback<AllAlbumsResponse>() {
-                @Override
-                public void onResponse(Call<AllAlbumsResponse> call, Response<AllAlbumsResponse> response) {
-                    ownerAlbums = response.body();
-                    presenter.onLoadAlbums(response.body());
-                }
+        api.getAllAlbums(accessToken, vkId, "5.6", true, true).enqueue(new Callback<AllAlbumsResponse>() {
+            @Override
+            public void onResponse(Call<AllAlbumsResponse> call, Response<AllAlbumsResponse> response) {
+                ownerAlbums = response.body();
+                presenter.onLoadAlbums(response.body());
+            }
 
-                @Override
-                public void onFailure(Call<AllAlbumsResponse> call, Throwable t) {
+            @Override
+            public void onFailure(Call<AllAlbumsResponse> call, Throwable t) {
 
-                }
-            });
-        }
-        else {
-            presenter.onLoadAlbums(ownerAlbums);
-        }
+            }
+        });
     }
 
     @Override

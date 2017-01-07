@@ -57,20 +57,22 @@ public class FirebaseClient implements MVP.FirebaseClientModel {
     }
 
 
-    //@TODO remove listen all users
     @Override
     public void listenOwner(final String ownerId) {
-        ownerListener=new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                Log.d( TAG,"listenOwner get user");
-                owner=  dataSnapshot.getValue(FirebaseProfile.class);
-                presenter.onUpgradeFirebaseProfile(owner);
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-            }
-        };
+        if(ownerListener==null) {
+            ownerListener = new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    Log.d(TAG, "listenOwner get user");
+                    owner = dataSnapshot.getValue(FirebaseProfile.class);
+                    presenter.onUpgradeFirebaseProfile(owner);
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                }
+            };
+        }
         ValueEventListener createUserListener=new ValueEventListener() {
             @Override
             public void onDataChange(final DataSnapshot dataSnapshot) {
@@ -105,12 +107,10 @@ public class FirebaseClient implements MVP.FirebaseClientModel {
     @Override
     public void addPhotoLikeTasks(List<FirebaseLikeTask> tasks) {
         owner.addTasks(tasks);
-        owner.setLikeCountOut(owner.getLikeCountOut()+tasks.size());
         owner.refreshData();
         dbRef.child("users").child(owner.getUserId()).updateChildren(owner.toMap());
     }
 
-    //@TODO filter own content
     @Override
     public void loadPhotoLikeTasksSet() {
         Query activeUsersQuery = dbRef.child("users").orderByChild("isActive").equalTo(true).limitToLast(4);
@@ -118,15 +118,13 @@ public class FirebaseClient implements MVP.FirebaseClientModel {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Log.d( TAG,"on loadPhotoLikeTasksSet ");
-
                 List<FirebaseLikeTask> choosedTasks=new ArrayList<>();
                 Log.d( TAG,"Count "+dataSnapshot.getChildrenCount());
                 for (DataSnapshot postSnapshot: dataSnapshot.getChildren()) {
                     FirebaseProfile profile = postSnapshot.getValue(FirebaseProfile.class);
+                    if(owner!=null&&profile.getUserId().equals(owner.getUserId()))continue;
                     Log.d( TAG,"profile tasks size "+profile.getTasks().size());
                     FirebaseLikeTask task=profile.removeTask();
-                    //profile.addShowsIn(1);
-                    //postSnapshot.getRef().updateChildren(profile.toMap());
                     choosedTasks.add(task);
                 }
                 presenter.onLoadLikeTasks(new FirebaseTasksSet(choosedTasks));

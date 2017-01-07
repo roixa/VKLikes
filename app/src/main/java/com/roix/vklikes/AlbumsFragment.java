@@ -20,6 +20,9 @@ import java.util.List;
 /**
  * A simple {@link Fragment} subclass.
  */
+//@TODO create photo gallery chooser
+//@TODO make correct checkboxes
+
 public class AlbumsFragment extends Fragment implements MVP.ContentView,CompoundButton.OnCheckedChangeListener{
 
     private RecyclerView recyclerView;

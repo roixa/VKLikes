@@ -71,6 +71,7 @@ public class Presenter implements MVP.RootPresenter {
     public void navTabProfilePushed() {
         state= MVP.State.PROFILE;
         rootView.prepareProfile();
+        firebaseClient.listenOwner(userId);
         vkClient.loadOwnerById(userId);
         rootView.showIsProgress(true);
     }
@@ -80,6 +81,8 @@ public class Presenter implements MVP.RootPresenter {
         state= MVP.State.LIKES;
         rootView.prepareLikes();
         firebaseClient.loadPhotoLikeTasksSet();
+        firebaseClient.listenOwner(userId);
+
         rootView.showIsProgress(true);
     }
 
@@ -143,7 +146,6 @@ public class Presenter implements MVP.RootPresenter {
             contentView.loadContent(this,user);
             rootView.prepareDrawer(user);
             rootView.showIsProgress(false);
-
         }
     }
 
@@ -191,6 +193,7 @@ public class Presenter implements MVP.RootPresenter {
     public void onUpgradeFirebaseProfile(FirebaseProfile profile) {
         Log.d(TAG,"onUpgradeFirebaseProfile(profile)"+profile.getUserId());
         if(state== MVP.State.PROFILE||state== MVP.State.LIKES){
+            Log.d(TAG,"onUpgradeFirebaseProfile "+profile.getLikeCountIn());
             contentView.loadContent(this,profile);
         }
     }

@@ -60,7 +60,6 @@ public class FirebaseProfile {
         return result;
     }
 
-    //@TODO make correct rating
     public void refreshData(){
 
         //if((showCountBuy+showCountOut)>likeCountIn){
