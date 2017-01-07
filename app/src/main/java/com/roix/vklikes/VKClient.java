@@ -2,6 +2,8 @@ package com.roix.vklikes;
 
 import android.util.Log;
 
+import com.roix.vklikes.pojo.firebase.FirebaseLikeTask;
+import com.roix.vklikes.pojo.firebase.FirebaseTasksSet;
 import com.roix.vklikes.pojo.vk.AddLikeResponse;
 import com.roix.vklikes.pojo.vk.Album;
 import com.roix.vklikes.pojo.vk.AllAlbumsResponse;
@@ -134,14 +136,15 @@ public class VKClient implements MVP.VKClientModel {
     }
 
     @Override
-    public void addLike(final String contentOwnerId, String itemId) {
-        api.addLike(accessToken,contentOwnerId,"5.6",itemId,"photo").enqueue(new Callback<AddLikeResponse>() {
+    public void addLike(final FirebaseTasksSet tasksSet, final int likedPos) {
+        FirebaseLikeTask task=tasksSet.getTasks().get(likedPos);
+        api.addLike(accessToken,task.getOwnerID(),"5.6",task.getPhotoID(),"photo").enqueue(new Callback<AddLikeResponse>() {
             @Override
             public void onResponse(Call<AddLikeResponse> call, Response<AddLikeResponse> response) {
                 Log.d(TAG,"addLike "+response.isSuccessful());
 
                 if(response.isSuccessful())
-                    presenter.onAddLikeResponse(contentOwnerId);
+                    presenter.onAddLikeResponse(tasksSet,likedPos);
             }
 
             @Override

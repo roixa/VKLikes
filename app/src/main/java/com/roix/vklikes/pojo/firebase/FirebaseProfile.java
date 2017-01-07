@@ -75,23 +75,18 @@ public class FirebaseProfile {
 
     public void addLikeIn(){
         likeCountIn++;
-        refreshData();
     }
     public void addLikeOut(){
         likeCountOut++;
-        refreshData();
     }
     public void addShowsIn(int i){
         showCountIn+=i;
-        refreshData();
     }
     public void addShowsOut(int i){
         showCountOut+=i;
-        refreshData();
     }
     public void addShowsBuy(int i){
         showCountBuy+=i;
-        refreshData();
     }
 
     public List<FirebaseLikeTask> getTasks() {

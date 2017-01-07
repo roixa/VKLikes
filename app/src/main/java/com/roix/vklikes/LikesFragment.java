@@ -32,7 +32,7 @@ public class LikesFragment extends Fragment implements MVP.ContentView, View.OnC
     private TextView userRating;
 
     private MVP.RootPresenter presenter;
-    private List<FirebaseLikeTask> taskList;
+    private FirebaseTasksSet tasksSet;
 
     public LikesFragment() {
         // Required empty public constructor
@@ -68,13 +68,13 @@ public class LikesFragment extends Fragment implements MVP.ContentView, View.OnC
     public void loadContent(MVP.RootPresenter presenter, Object o) {
         this.presenter=presenter;
         if(o instanceof FirebaseTasksSet){
-            taskList= ((FirebaseTasksSet) o).getTasks();
-            int sz=taskList.size();
-            if(sz>0) Picasso.with(getActivity()).load(taskList.get(0).getPhotoUrl()).into(first);
+            tasksSet= ((FirebaseTasksSet) o);
+            int sz=tasksSet.getTasks().size();
+            if(sz>0) Picasso.with(getActivity()).load(tasksSet.getTasks().get(0).getPhotoUrl()).into(first);
             else first.setImageBitmap(null);
-            if(sz>1) Picasso.with(getActivity()).load(taskList.get(1).getPhotoUrl()).into(second);
+            if(sz>1) Picasso.with(getActivity()).load(tasksSet.getTasks().get(1).getPhotoUrl()).into(second);
             else second.setImageBitmap(null);
-            if(sz>2) Picasso.with(getActivity()).load(taskList.get(2).getPhotoUrl()).into(third);
+            if(sz>2) Picasso.with(getActivity()).load(tasksSet.getTasks().get(2).getPhotoUrl()).into(third);
             else third.setImageBitmap(null);
 
         }
@@ -88,40 +88,39 @@ public class LikesFragment extends Fragment implements MVP.ContentView, View.OnC
     @Override
     public void onClick(View v) {
 
-
         FullImageDialogFragment dialogFragment = null;
 
         switch (v.getId()){
             case R.id.imageFirst:
-                if(taskList.size()>0){
-                    dialogFragment=FullImageDialogFragment.newInstance(taskList.get(0).getPhotoUrl(),"");
+                if(tasksSet.getTasks().size()>0){
+                    dialogFragment=FullImageDialogFragment.newInstance(tasksSet.getTasks().get(0).getPhotoUrl(),"");
                     dialogFragment.show(getFragmentManager(),"diag1");
                 }
                 break;
             case R.id.imageSecond:
-                if(taskList.size()>1) {
-                    dialogFragment=FullImageDialogFragment.newInstance(taskList.get(1).getPhotoUrl(),"");
+                if(tasksSet.getTasks().size()>1) {
+                    dialogFragment=FullImageDialogFragment.newInstance(tasksSet.getTasks().get(1).getPhotoUrl(),"");
                     dialogFragment.show(getFragmentManager(),"diag1");
 
                 }
                 break;
             case R.id.imageThird:
-                if(taskList.size()>2) {
-                    dialogFragment=FullImageDialogFragment.newInstance(taskList.get(2).getPhotoUrl(),"");
+                if(tasksSet.getTasks().size()>2) {
+                    dialogFragment=FullImageDialogFragment.newInstance(tasksSet.getTasks().get(2).getPhotoUrl(),"");
                     dialogFragment.show(getFragmentManager(),"diag1");
                 }
                 break;
             case R.id.fab1:
-                if((taskList.size()>0))
-                    presenter.imageLikeClicked(taskList.get(0));
+                if((tasksSet.getTasks().size()>0))
+                    presenter.imageLikeClicked(tasksSet,0);
                 break;
             case R.id.fab2:
-                if((taskList.size()>1))
-                    presenter.imageLikeClicked(taskList.get(1));
+                if((tasksSet.getTasks().size()>1))
+                    presenter.imageLikeClicked(tasksSet,1);
                 break;
             case R.id.fab3:
-                if((taskList.size()>2))
-                    presenter.imageLikeClicked(taskList.get(2));
+                if((tasksSet.getTasks().size()>2))
+                    presenter.imageLikeClicked(tasksSet,2);
                 break;
 
         }

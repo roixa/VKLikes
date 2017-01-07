@@ -50,7 +50,7 @@ public class MVP {
         //content
         void updateContent(ContentView view);
         void choosedAlbum(Album album);//null == all photos
-        void imageLikeClicked(FirebaseLikeTask liked);
+        void imageLikeClicked(FirebaseTasksSet tasksSet,int likedPos);
 
         void onError(int code,String err);
         //vk api callback
@@ -58,7 +58,7 @@ public class MVP {
         void onLoadAlbums(AllAlbumsResponse response);
         void onLoadPhotosByAlbum(List<Photo> response);
         void onLoadAllPhotos(List<Photo> response);
-        void onAddLikeResponse(String contentOwnerId);
+        void onAddLikeResponse(FirebaseTasksSet tasksSet,int likedPos);//this params need to firebase
         //firebase api callbacks
         void onFirebaseAuth();
         void onUpgradeFirebaseProfile(FirebaseProfile profile);
@@ -70,7 +70,7 @@ public class MVP {
         void loadOwnerAlbums(String vkId);
         void loadPhotosByAlbum(Album album);
         void loadAllPhotosById(String vkId);
-        void addLike(String contentOwnerId,String itemId);
+        void addLike(FirebaseTasksSet tasksSet,int likedPos);
     }
 
     public interface FirebaseClientModel{
@@ -78,7 +78,8 @@ public class MVP {
         void listenOwner(String ownerId);
         void addPhotoLikeTasks(List<FirebaseLikeTask> tasks);
         void loadPhotoLikeTasksSet();
-        void registerLikeEvent(String contentOwnerId);
+        void registerLikeEvent(FirebaseLikeTask task);
+        void registerShownEvent(FirebaseLikeTask task);//exp;ain: not like event
         void finish();
 
     }

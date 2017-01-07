@@ -63,46 +63,44 @@ public class FirebaseClient implements MVP.FirebaseClientModel {
         ownerListener=new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                Log.d( TAG,"listenOwner get user");
+                owner=  dataSnapshot.getValue(FirebaseProfile.class);
+                presenter.onUpgradeFirebaseProfile(owner);
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        };
+        ValueEventListener createUserListener=new ValueEventListener() {
+            @Override
+            public void onDataChange(final DataSnapshot dataSnapshot) {
+                dataSnapshot.getRef().removeEventListener(this);
                 if(!dataSnapshot.hasChild(ownerId)){
                     Log.d( TAG,"listenOwner create user");
-                    dataSnapshot.getRef().child(ownerId).updateChildren(new FirebaseProfile(ownerId).toMap());
+                    dataSnapshot.getRef().child(ownerId).updateChildren(new FirebaseProfile(ownerId).toMap()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            dataSnapshot.getRef().child(ownerId).addValueEventListener(ownerListener);
+                        }
+                    });
                 }
                 else {
-                    Log.d( TAG,"listenOwner get user");
-                    owner=  dataSnapshot.child(ownerId).getValue(FirebaseProfile.class);
-                    presenter.onUpgradeFirebaseProfile(owner);
+                    dataSnapshot.getRef().child(ownerId).addValueEventListener(ownerListener);
                 }
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
             }
         };
+
         if(owner==null){
-            dbRef.child("users").addValueEventListener(ownerListener);
+            dbRef.child("users").addValueEventListener(createUserListener);
         }
         else {
             presenter.onUpgradeFirebaseProfile(owner);
         }
     }
-    //@TODO remove listen all users task  preset
-    private void createUserTask(final String ownerId){
-        ValueEventListener createUserListener=new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if(!dataSnapshot.hasChild(ownerId)){
-                    Log.d( TAG,"listenOwner create user");
-                    dataSnapshot.getRef().child(ownerId).updateChildren(new FirebaseProfile(ownerId).toMap());
-                }
-                dataSnapshot.getRef().removeEventListener(this);
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-            }
-        };
-        dbRef.child("users").addValueEventListener(ownerListener);
 
-
-    }
 
     @Override
     public void addPhotoLikeTasks(List<FirebaseLikeTask> tasks) {
@@ -119,14 +117,16 @@ public class FirebaseClient implements MVP.FirebaseClientModel {
         ValueEventListener likesTaskListener=new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                Log.d( TAG,"on loadPhotoLikeTasksSet ");
+
                 List<FirebaseLikeTask> choosedTasks=new ArrayList<>();
                 Log.d( TAG,"Count "+dataSnapshot.getChildrenCount());
                 for (DataSnapshot postSnapshot: dataSnapshot.getChildren()) {
                     FirebaseProfile profile = postSnapshot.getValue(FirebaseProfile.class);
                     Log.d( TAG,"profile tasks size "+profile.getTasks().size());
                     FirebaseLikeTask task=profile.removeTask();
-                    profile.addShowsIn(1);
-                    postSnapshot.getRef().updateChildren(profile.toMap());
+                    //profile.addShowsIn(1);
+                    //postSnapshot.getRef().updateChildren(profile.toMap());
                     choosedTasks.add(task);
                 }
                 presenter.onLoadLikeTasks(new FirebaseTasksSet(choosedTasks));
@@ -141,14 +141,20 @@ public class FirebaseClient implements MVP.FirebaseClientModel {
     }
 
     @Override
-    public void registerLikeEvent(String contentOwnerId) {
+    public void registerLikeEvent(final FirebaseLikeTask task) {
         owner.addLikeOut();
+        owner.addShowsOut(3);
         dbRef.child("users").child(owner.getUserId()).updateChildren(owner.toMap());
-        dbRef.child("users").child(contentOwnerId).addValueEventListener(new ValueEventListener() {
+
+        dbRef.child("users").child(task.getOwnerID()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                Log.d( TAG,"registerLikeEvent ");
                 FirebaseProfile profile=dataSnapshot.getValue(FirebaseProfile.class);
+                profile.removeTask(task);
                 profile.addLikeIn();
+                profile.addShowsIn(1);
+                profile.refreshData();
                 dataSnapshot.getRef().updateChildren(profile.toMap());
                 dataSnapshot.getRef().removeEventListener(this);
             }
@@ -158,6 +164,29 @@ public class FirebaseClient implements MVP.FirebaseClientModel {
 
             }
         });
+
+    }
+
+    @Override
+    public void registerShownEvent(final FirebaseLikeTask task) {
+        dbRef.child("users").child(task.getOwnerID()).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Log.d( TAG,"registerLikeEvent ");
+
+                FirebaseProfile profile=dataSnapshot.getValue(FirebaseProfile.class);
+                profile.addShowsIn(1);
+                profile.removeTask(task);
+                dataSnapshot.getRef().updateChildren(profile.toMap());
+                dataSnapshot.getRef().removeEventListener(this);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
     }
 
     private synchronized FirebaseProfile getOwner() {

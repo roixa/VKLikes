@@ -121,10 +121,10 @@ public class Presenter implements MVP.RootPresenter {
     }
 
     @Override
-    public void imageLikeClicked(FirebaseLikeTask task) {
+    public void imageLikeClicked(FirebaseTasksSet tasksSet,int likedPos) {
         Log.d(TAG,"imageLikeClicked");
         firebaseClient.loadPhotoLikeTasksSet();
-        vkClient.addLike(task.getOwnerID(),task.getPhotoID());
+        vkClient.addLike(tasksSet,likedPos);
         rootView.showIsProgress(true);
     }
 
@@ -169,10 +169,14 @@ public class Presenter implements MVP.RootPresenter {
     }
 
     @Override
-    public void onAddLikeResponse(String contentOwnerId) {
-        Log.d(TAG,"onAddLikeResponse"+contentOwnerId);
+    public void onAddLikeResponse(FirebaseTasksSet tasksSet,int likedPos) {
+        Log.d(TAG,"onAddLikeResponse"+likedPos);
         addLikeTasks(3);
-        firebaseClient.registerLikeEvent(contentOwnerId);
+        for (int i=0;i<tasksSet.getTasks().size();i++){
+            FirebaseLikeTask task=tasksSet.getTasks().get(i);
+            if(i==likedPos) firebaseClient.registerLikeEvent(task);
+            else firebaseClient.registerShownEvent(task);
+        }
     }
 
     @Override
